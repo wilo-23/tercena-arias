@@ -1,65 +1,207 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Tercena Arias</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #fff5f5;
-      text-align: center;
-    }
-    header {
-      background: #b30000;
-      color: white;
-      padding: 20px;
-    }
-    h1 {
-      margin: 0;
-    }
-    .container {
-      padding: 20px;
-    }
-    .btn {
-      display: inline-block;
-      margin: 10px;
-      padding: 12px 20px;
-      background: #b30000;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-    }
-    .btn:hover {
-      background: #800000;
-    }
-    footer {
-      margin-top: 30px;
-      padding: 15px;
-      background: #eee;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POS - Tercena Arias</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:#f4f4f4;
+}
+
+header{
+background:#b30000;
+color:white;
+padding:15px;
+text-align:center;
+}
+
+header img{
+height:100px;
+}
+
+.container{
+display:flex;
+padding:20px;
+gap:20px;
+}
+
+.products{
+width:60%;
+background:white;
+padding:15px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.products button{
+width:48%;
+padding:15px;
+margin:1%;
+font-size:16px;
+border:none;
+background:#b30000;
+color:white;
+border-radius:8px;
+cursor:pointer;
+}
+
+.products button:hover{
+background:#800000;
+}
+
+.cart{
+width:40%;
+background:white;
+padding:15px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.total{
+font-size:20px;
+font-weight:bold;
+margin-top:10px;
+}
+
+input, select{
+width:100%;
+padding:10px;
+margin-top:10px;
+font-size:16px;
+}
+
+.action-btn{
+width:100%;
+padding:15px;
+margin-top:10px;
+font-size:16px;
+border:none;
+background:#28a745;
+color:white;
+border-radius:8px;
+cursor:pointer;
+}
+
+.action-btn:hover{
+background:#1e7e34;
+}
+</style>
 </head>
+
 <body>
 
-<header style="background:#b30000;padding:15px;color:white;text-align:center;">
-  <img src="logo.png" alt="Tercena Arias" style="height:90px;"><br>
-  <strong style="font-size:22px;">Puesto 2152</strong>
+<header>
+<img src="logo.png" alt="Tercena Arias">
+<h2>Tercena Arias - Puesto 2152</h2>
 </header>
 
 <div class="container">
-  <h2>Bienvenidos</h2>
-  <p>Venta de pollo fresco y productos cárnicos de calidad.</p>
 
-  <a class="btn" href="https://wa.me/593TU_NUMERO">Pedir por WhatsApp</a>
-  <a class="btn" href="mailto:tucorreo@gmail.com">Enviar Correo</a>
+<div class="products">
+<h3>Productos</h3>
+
+<button onclick="addProduct('Pollo Entero',10)">Pollo Entero $10</button>
+<button onclick="addProduct('Pierna',3)">Pierna $3</button>
+<button onclick="addProduct('Pechuga',4)">Pechuga $4</button>
+<button onclick="addProduct('Alitas',2)">Alitas $2</button>
+<button onclick="addProduct('Menudencia',1.5)">Menudencia $1.50</button>
+<button onclick="addProduct('Filete',5)">Filete $5</button>
+
 </div>
 
-<footer>
-  © 2026 Tercena Arias - Todos los derechos reservados
-</footer>
+<div class="cart">
+<h3>Venta</h3>
+<ul id="cartList"></ul>
+<div class="total">Total: $<span id="total">0</span></div>
+
+<select id="paymentMethod">
+<option>Efectivo</option>
+<option>Transferencia</option>
+<option>QR</option>
+</select>
+
+<input type="number" id="amountPaid" placeholder="Monto con que paga">
+
+<button class="action-btn" onclick="generatePDF()">Generar Recibo PDF</button>
+<button class="action-btn" onclick="clearSale()">Nueva Venta</button>
+
+</div>
+
+</div>
+
+<script>
+
+let cart=[];
+let total=0;
+
+function addProduct(name,price){
+cart.push({name,price});
+total+=price;
+updateCart();
+}
+
+function updateCart(){
+let list=document.getElementById("cartList");
+list.innerHTML="";
+cart.forEach(item=>{
+let li=document.createElement("li");
+li.textContent=item.name+" - $"+item.price;
+list.appendChild(li);
+});
+document.getElementById("total").textContent=total.toFixed(2);
+}
+
+function clearSale(){
+cart=[];
+total=0;
+updateCart();
+document.getElementById("amountPaid").value="";
+}
+
+function generatePDF(){
+if(cart.length===0){
+alert("No hay productos");
+return;
+}
+
+const { jsPDF } = window.jspdf;
+const doc=new jsPDF();
+
+doc.setFontSize(18);
+doc.text("TERCENA ARIAS",20,20);
+doc.setFontSize(12);
+doc.text("Puesto 2152",20,30);
+
+let y=50;
+
+cart.forEach(item=>{
+doc.text(item.name+" - $"+item.price,20,y);
+y+=10;
+});
+
+doc.text("Total: $"+total.toFixed(2),20,y+10);
+
+let paid=document.getElementById("amountPaid").value;
+let method=document.getElementById("paymentMethod").value;
+
+doc.text("Forma de pago: "+method,20,y+20);
+
+if(paid){
+let change=paid-total;
+doc.text("Paga con: $"+paid,20,y+30);
+doc.text("Cambio: $"+change.toFixed(2),20,y+40);
+}
+
+doc.save("recibo.pdf");
+}
+
+</script>
 
 </body>
 </html>
- 
