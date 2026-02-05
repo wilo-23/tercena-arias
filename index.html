@@ -3,205 +3,192 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>POS - Tercena Arias</title>
+<title>POS Tercenas Arias</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
 body{
-margin:0;
-font-family:Arial, sans-serif;
-background:#f4f4f4;
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:#111;
+    color:white;
 }
-
 header{
-background:#b30000;
-color:white;
-padding:15px;
-text-align:center;
+    background:#000;
+    padding:15px;
+    text-align:center;
+    border-bottom:2px solid #00ff88;
 }
-
 header img{
-height:100px;
+    height:70px;
 }
-
 .container{
-display:flex;
-padding:20px;
-gap:20px;
+    display:flex;
+    height:calc(100vh - 110px);
 }
-
 .products{
-width:60%;
-background:white;
-padding:15px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
+    flex:2;
+    padding:20px;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
 }
-
 .products button{
-width:48%;
-padding:15px;
-margin:1%;
-font-size:16px;
-border:none;
-background:#b30000;
-color:white;
-border-radius:8px;
-cursor:pointer;
+    padding:20px;
+    font-size:18px;
+    background:#222;
+    color:white;
+    border:none;
+    border-radius:10px;
 }
-
-.products button:hover{
-background:#800000;
-}
-
 .cart{
-width:40%;
-background:white;
-padding:15px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
+    flex:1;
+    background:#000;
+    padding:20px;
+    border-left:2px solid #00ff88;
+    display:flex;
+    flex-direction:column;
 }
-
+.cart-items{
+    flex:1;
+    overflow:auto;
+}
 .total{
-font-size:20px;
-font-weight:bold;
-margin-top:10px;
+    font-size:22px;
+    margin-top:10px;
 }
-
-input, select{
-width:100%;
-padding:10px;
-margin-top:10px;
-font-size:16px;
+input{
+    width:100%;
+    padding:10px;
+    font-size:18px;
+    margin-top:5px;
 }
-
-.action-btn{
-width:100%;
-padding:15px;
-margin-top:10px;
-font-size:16px;
-border:none;
-background:#28a745;
-color:white;
-border-radius:8px;
-cursor:pointer;
+.methods button{
+    margin-top:10px;
+    padding:12px;
+    font-size:16px;
+    background:#00ff88;
+    border:none;
+    border-radius:8px;
 }
-
-.action-btn:hover{
-background:#1e7e34;
+.keypad{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:5px;
+    margin-top:10px;
+}
+.keypad button{
+    padding:15px;
+    font-size:18px;
+}
+footer{
+    text-align:center;
+    padding:10px;
+    background:#000;
 }
 </style>
 </head>
-
 <body>
 
 <header>
-<img src="logo.png" alt="Tercena Arias">
-<h2>Tercena Arias - Puesto 2152</h2>
+    <img src="logotipo.png">
+    <h2>TERCENAS ARIAS - SISTEMA POS</h2>
 </header>
 
 <div class="container">
 
 <div class="products">
-<h3>Productos</h3>
-
-<button onclick="addProduct('Pollo Entero',10)">Pollo Entero $10</button>
-<button onclick="addProduct('Pierna',3)">Pierna $3</button>
-<button onclick="addProduct('Pechuga',4)">Pechuga $4</button>
-<button onclick="addProduct('Alitas',2)">Alitas $2</button>
-<button onclick="addProduct('Menudencia',1.5)">Menudencia $1.50</button>
-<button onclick="addProduct('Filete',5)">Filete $5</button>
-
+    <button onclick="addProduct('Pollo Entero',10)">Pollo Entero $10</button>
+    <button onclick="addProduct('Pierna',3)">Pierna $3</button>
+    <button onclick="addProduct('Pechuga',4)">Pechuga $4</button>
+    <button onclick="addProduct('Alas',2)">Alas $2</button>
+    <button onclick="addProduct('Menudencia',1.5)">Menudencia $1.5</button>
 </div>
 
 <div class="cart">
-<h3>Venta</h3>
-<ul id="cartList"></ul>
-<div class="total">Total: $<span id="total">0</span></div>
+    <div class="cart-items" id="cart"></div>
+    <div class="total" id="total">Total: $0</div>
 
-<select id="paymentMethod">
-<option>Efectivo</option>
-<option>Transferencia</option>
-<option>QR</option>
-</select>
+    <label>Cliente paga:</label>
+    <input type="text" id="paid" readonly>
 
-<input type="number" id="amountPaid" placeholder="Monto con que paga">
+    <div class="keypad">
+        <button onclick="press(1)">1</button>
+        <button onclick="press(2)">2</button>
+        <button onclick="press(3)">3</button>
+        <button onclick="press(4)">4</button>
+        <button onclick="press(5)">5</button>
+        <button onclick="press(6)">6</button>
+        <button onclick="press(7)">7</button>
+        <button onclick="press(8)">8</button>
+        <button onclick="press(9)">9</button>
+        <button onclick="press('.')">.</button>
+        <button onclick="press(0)">0</button>
+        <button onclick="clearPaid()">C</button>
+    </div>
 
-<button class="action-btn" onclick="generatePDF()">Generar Recibo PDF</button>
-<button class="action-btn" onclick="clearSale()">Nueva Venta</button>
+    <div id="change"></div>
 
+    <div class="methods">
+        <button onclick="finishSale('Efectivo')">Efectivo</button>
+        <button onclick="finishSale('QR')">QR</button>
+        <button onclick="finishSale('Transferencia')">Transferencia</button>
+        <button onclick="downloadPDF()">Descargar PDF</button>
+        <button onclick="sendWhatsApp()">Enviar WhatsApp</button>
+    </div>
 </div>
 
 </div>
+
+<footer>
+    © 2026 Tercenas Arias
+</footer>
 
 <script>
+let cart = [];
+let total = 0;
 
-let cart=[];
-let total=0;
-
-function addProduct(name,price){
-cart.push({name,price});
-total+=price;
-updateCart();
+function addProduct(name, price){
+    cart.push({name,price});
+    total += price;
+    renderCart();
 }
 
-function updateCart(){
-let list=document.getElementById("cartList");
-list.innerHTML="";
-cart.forEach(item=>{
-let li=document.createElement("li");
-li.textContent=item.name+" - $"+item.price;
-list.appendChild(li);
-});
-document.getElementById("total").textContent=total.toFixed(2);
+function renderCart(){
+    const cartDiv = document.getElementById("cart");
+    cartDiv.innerHTML="";
+    cart.forEach(item=>{
+        cartDiv.innerHTML += `<div>${item.name} - $${item.price}</div>`;
+    });
+    document.getElementById("total").innerText="Total: $"+total.toFixed(2);
 }
 
-function clearSale(){
-cart=[];
-total=0;
-updateCart();
-document.getElementById("amountPaid").value="";
+function press(num){
+    document.getElementById("paid").value += num;
 }
 
-function generatePDF(){
-if(cart.length===0){
-alert("No hay productos");
-return;
+function clearPaid(){
+    document.getElementById("paid").value="";
 }
 
-const { jsPDF } = window.jspdf;
-const doc=new jsPDF();
-
-doc.setFontSize(18);
-doc.text("TERCENA ARIAS",20,20);
-doc.setFontSize(12);
-doc.text("Puesto 2152",20,30);
-
-let y=50;
-
-cart.forEach(item=>{
-doc.text(item.name+" - $"+item.price,20,y);
-y+=10;
-});
-
-doc.text("Total: $"+total.toFixed(2),20,y+10);
-
-let paid=document.getElementById("amountPaid").value;
-let method=document.getElementById("paymentMethod").value;
-
-doc.text("Forma de pago: "+method,20,y+20);
-
-if(paid){
-let change=paid-total;
-doc.text("Paga con: $"+paid,20,y+30);
-doc.text("Cambio: $"+change.toFixed(2),20,y+40);
+function finishSale(method){
+    let paid = parseFloat(document.getElementById("paid").value || 0);
+    let change = paid - total;
+    document.getElementById("change").innerText="Cambio: $"+change.toFixed(2)+" | Método: "+method;
 }
 
-doc.save("recibo.pdf");
+function downloadPDF(){
+    let element = document.querySelector(".cart");
+    html2pdf().from(element).save("recibo.pdf");
 }
 
+function sendWhatsApp(){
+    let message = "Compra en Tercenas Arias - Total: $" + total.toFixed(2);
+    window.open("https://wa.me/?text="+encodeURIComponent(message));
+}
 </script>
 
 </body>
 </html>
+ 
