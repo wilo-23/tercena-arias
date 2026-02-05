@@ -1,149 +1,271 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tercena Arias POS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TERCENA ARIAS POS PRO MAX</title>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-body{
-    margin:0;
-    font-family:Arial;
-    background:#111;
-    color:white;
-}
-header{
-    background:#7a0000;
-    padding:15px;
-    text-align:center;
-    font-size:22px;
-    font-weight:bold;
-}
-.logo{
-    text-align:center;
-    margin:10px;
-}
-.logo img{
-    width:120px;
-}
-.container{
-    padding:10px;
-}
-button{
-    padding:15px;
-    margin:5px;
-    font-size:18px;
-    border:none;
-    border-radius:8px;
-}
-.product{
-    background:#222;
-    color:white;
-    width:100%;
-}
-.cantidad-btn{
-    background:#b30000;
-    color:white;
-}
-.teclado{
-    position:fixed;
-    bottom:0;
-    width:100%;
-    background:#000;
-    padding:10px;
-}
-.teclado button{
-    width:30%;
-    margin:1%;
-    background:#333;
-    color:white;
-}
-.display{
-    background:white;
-    color:black;
-    font-size:22px;
-    padding:10px;
-    margin:10px 0;
-    text-align:right;
-    border-radius:8px;
-}
+body{font-family:Segoe UI;background:#f1f5f9}
+.dark{background:#0f172a;color:white}
+.btn{background:#b91c1c;color:white;border-radius:12px;font-weight:800;height:70px}
+.key{background:white;border-radius:50%;width:60px;height:60px;font-weight:800}
+.hidden{display:none}
 </style>
 </head>
-
 <body>
 
-<header>Tercena Arias</header>
-
-<div class="logo">
-<img src="logo.png">
+<!-- LOGIN PIN -->
+<div id="login" class="fixed inset-0 bg-black flex items-center justify-center z-50">
+<div class="bg-white p-8 rounded-2xl text-center w-80">
+<img src="logotipo.png" class="w-20 mx-auto mb-4">
+<h2 class="font-bold mb-2">Ingresar PIN</h2>
+<input type="password" id="pinInput" class="border p-2 w-full text-center text-xl mb-4">
+<button onclick="login()" class="bg-green-600 text-white w-full py-2 rounded">Entrar</button>
+</div>
 </div>
 
-<div class="container">
+<header class="bg-red-700 text-white p-4 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<img src="logotipo.png" class="w-10">
+<h1 class="font-black">TERCENA ARIAS</h1>
+</div>
+<div>
+<span id="saldo" class="font-black text-green-300">$0.00</span>
+</div>
+</header>
 
-<div class="display" id="pantalla">0.00</div>
+<div class="flex">
 
-<h3>🐔 Pollo Entero</h3>
-<button class="cantidad-btn" onclick="setCantidad(1)">1</button>
-<button class="cantidad-btn" onclick="setCantidad(2)">2</button>
-<button class="cantidad-btn" onclick="setCantidad(3)">3</button>
-
-<h3>Productos</h3>
-
-<button class="product" onclick="nuevoTotal()">Pollo por libras</button>
-<button class="product" onclick="nuevoTotal()">Alas</button>
-<button class="product" onclick="nuevoTotal()">Pechuga</button>
-<button class="product" onclick="nuevoTotal()">Molleja</button>
-<button class="product" onclick="nuevoTotal()">Menudencia</button>
-<button class="product" onclick="nuevoTotal()">Presas</button>
-
+<!-- PRODUCTOS -->
+<div class="w-1/2 p-3 grid grid-cols-2 gap-3 bg-gray-100 min-h-screen">
+<button onclick="abrirTeclado('Pollo Entero')" class="btn">Pollo Entero</button>
+<button onclick="abrirTeclado('Pollo Libras')" class="btn">Pollo Libras</button>
+<button onclick="abrirTeclado('Alas')" class="btn">Alas</button>
+<button onclick="abrirTeclado('Pechuga')" class="btn">Pechuga</button>
+<button onclick="abrirTeclado('Menudo')" class="btn">Menudo</button>
+<button onclick="abrirTeclado('Otros')" class="btn bg-gray-600">Otros</button>
 </div>
 
-<div class="teclado">
-<button onclick="numero(7)">7</button>
-<button onclick="numero(8)">8</button>
-<button onclick="numero(9)">9</button>
+<!-- TICKET -->
+<div class="w-1/2 bg-white flex flex-col relative">
+<div class="bg-yellow-400 p-4 text-center">
+<h2 id="total" class="text-3xl font-black">$0.00</h2>
+</div>
 
-<button onclick="numero(4)">4</button>
-<button onclick="numero(5)">5</button>
-<button onclick="numero(6)">6</button>
+<div id="ticket" class="flex-1 overflow-y-auto p-2 space-y-2 pb-28"></div>
 
-<button onclick="numero(1)">1</button>
-<button onclick="numero(2)">2</button>
-<button onclick="numero(3)">3</button>
+<button onclick="cobrar()" class="absolute bottom-4 left-4 right-4 bg-black text-white py-4 rounded-xl font-black">
+COBRAR 💰
+</button>
+</div>
+</div>
 
-<button onclick="numero(0)">0</button>
-<button onclick="numero('.')">.</button>
-<button onclick="borrar()">Borrar</button>
+<!-- PANEL INFERIOR -->
+<div class="p-4 bg-white border-t space-y-2">
+<div id="dashboard"></div>
+<div class="flex gap-2 flex-wrap">
+<button onclick="registrarGasto()" class="bg-red-600 text-white px-3 py-2 rounded">+ Gasto</button>
+<button onclick="cambiarPin()" class="bg-blue-600 text-white px-3 py-2 rounded">Cambiar PIN</button>
+<button onclick="exportar()" class="bg-gray-700 text-white px-3 py-2 rounded">Backup</button>
+<input type="file" id="fileInput" onchange="importar(event)" class="hidden">
+<button onclick="document.getElementById('fileInput').click()" class="bg-gray-500 text-white px-3 py-2 rounded">Restaurar</button>
+<button onclick="cerrarCaja()" class="bg-black text-white px-3 py-2 rounded">Cerrar Caja</button>
+<button onclick="toggleDark()" class="bg-purple-600 text-white px-3 py-2 rounded">Modo Oscuro</button>
+</div>
+</div>
 
-<button style="background:#b30000;width:95%;" onclick="limpiar()">Nuevo</button>
+<!-- MODAL TECLADO -->
+<div id="modal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center">
+<div class="bg-white p-6 rounded-2xl text-center">
+<h2 id="productoNombre" class="font-bold mb-2"></h2>
+<div id="display" class="text-4xl font-black mb-4">$0</div>
+<div class="grid grid-cols-3 gap-3 justify-items-center">
+<button onclick="tec(1)" class="key">1</button>
+<button onclick="tec(2)" class="key">2</button>
+<button onclick="tec(3)" class="key">3</button>
+<button onclick="tec(4)" class="key">4</button>
+<button onclick="tec(5)" class="key">5</button>
+<button onclick="tec(6)" class="key">6</button>
+<button onclick="tec(7)" class="key">7</button>
+<button onclick="tec(8)" class="key">8</button>
+<button onclick="tec(9)" class="key">9</button>
+<button onclick="tec('.')" class="key">.</button>
+<button onclick="tec(0)" class="key">0</button>
+<button onclick="borrar()" class="key bg-red-500 text-white">←</button>
+</div>
+<button onclick="agregar()" class="mt-4 bg-green-600 text-white px-6 py-3 rounded-xl font-bold">
+Agregar
+</button>
+</div>
 </div>
 
 <script>
-let pantalla = document.getElementById("pantalla");
-let cantidad = 0;
+let db = JSON.parse(localStorage.getItem("posProMax")) || {
+pin:"1234",
+saldo:0,
+ventas:[],
+gastos:[],
+carrito:[],
+cierres:[]
+};
 
-function numero(num){
-    if(pantalla.innerText == "0.00") pantalla.innerText="";
-    pantalla.innerText += num;
+let productoActual="";
+let valor="";
+
+function guardar(){
+localStorage.setItem("posProMax",JSON.stringify(db));
+}
+
+function login(){
+let p=document.getElementById("pinInput").value;
+if(p===db.pin){
+document.getElementById("login").style.display="none";
+}else{
+alert("PIN incorrecto");
+}
+}
+
+function abrirTeclado(nombre){
+productoActual=nombre;
+valor="";
+document.getElementById("productoNombre").innerText=nombre;
+document.getElementById("display").innerText="$0";
+document.getElementById("modal").classList.remove("hidden");
+}
+
+function tec(n){
+valor+=n;
+document.getElementById("display").innerText="$"+valor;
 }
 
 function borrar(){
-    pantalla.innerText = pantalla.innerText.slice(0,-1);
+valor=valor.slice(0,-1);
+document.getElementById("display").innerText="$"+(valor||0);
 }
 
-function limpiar(){
-    pantalla.innerText="0.00";
-    cantidad=0;
+function agregar(){
+let precio=parseFloat(valor||0);
+if(precio<=0)return;
+db.carrito.push({n:productoActual,p:precio});
+document.getElementById("modal").classList.add("hidden");
+pintar();
+guardar();
 }
 
-function setCantidad(num){
-    cantidad = num;
+function pintar(){
+let total=0;
+let html="";
+db.carrito.forEach((i,index)=>{
+total+=i.p;
+html+=`<div class="flex justify-between bg-gray-100 p-2 rounded">
+<span>${i.n}</span>
+<div>
+<span class="text-red-600 font-bold">$${i.p.toFixed(2)}</span>
+<button onclick="eliminar(${index})" class="ml-2 text-xs">❌</button>
+</div></div>`;
+});
+document.getElementById("ticket").innerHTML=html;
+document.getElementById("total").innerText="$"+total.toFixed(2);
 }
 
-function nuevoTotal(){
-    pantalla.innerText="0.00";
+function eliminar(i){
+db.carrito.splice(i,1);
+pintar();
+guardar();
 }
+
+function cobrar(){
+if(db.carrito.length==0)return;
+let total=db.carrito.reduce((s,i)=>s+i.p,0);
+db.saldo+=total;
+let venta={fecha:new Date().toLocaleString(),items:[...db.carrito],total};
+db.ventas.unshift(venta);
+enviarWhatsApp(venta);
+db.carrito=[];
+pintar();
+actualizar();
+guardar();
+}
+
+function enviarWhatsApp(v){
+let texto="🧾 TERCENA ARIAS\n\nFecha: "+v.fecha+"\n\n";
+v.items.forEach(i=>{
+texto+=i.n+" $"+i.p.toFixed(2)+"\n";
+});
+texto+="\nTOTAL: $"+v.total.toFixed(2)+"\n\nGracias por su compra 🐔";
+window.open("https://wa.me/?text="+encodeURIComponent(texto));
+}
+
+function registrarGasto(){
+let monto=parseFloat(prompt("Monto gasto:"));
+let desc=prompt("Descripción:");
+if(monto>0 && desc){
+db.gastos.unshift({m:monto,d:desc});
+db.saldo-=monto;
+actualizar();
+guardar();
+}
+}
+
+function actualizar(){
+document.getElementById("saldo").innerText="$"+db.saldo.toFixed(2);
+let ventas=db.ventas.reduce((s,v)=>s+v.total,0);
+let gastos=db.gastos.reduce((s,g)=>s+g.m,0);
+document.getElementById("dashboard").innerHTML=
+`Ventas: $${ventas.toFixed(2)} | Gastos: $${gastos.toFixed(2)} | Ganancia: $${(ventas-gastos).toFixed(2)} | Nº Ventas: ${db.ventas.length}`;
+}
+
+function cambiarPin(){
+let nuevo=prompt("Nuevo PIN:");
+if(nuevo){
+db.pin=nuevo;
+guardar();
+alert("PIN actualizado");
+}
+}
+
+function exportar(){
+let dataStr="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(db));
+let dl=document.createElement("a");
+dl.setAttribute("href",dataStr);
+dl.setAttribute("download","respaldo_pos.json");
+dl.click();
+}
+
+function importar(e){
+let file=e.target.files[0];
+let reader=new FileReader();
+reader.onload=function(evt){
+db=JSON.parse(evt.target.result);
+guardar();
+location.reload();
+};
+reader.readAsText(file);
+}
+
+function cerrarCaja(){
+if(confirm("¿Cerrar jornada?")){
+db.cierres.unshift({
+fecha:new Date().toLocaleString(),
+saldo:db.saldo,
+ventas:db.ventas.length
+});
+db.saldo=0;
+db.ventas=[];
+db.gastos=[];
+guardar();
+location.reload();
+}
+}
+
+function toggleDark(){
+document.body.classList.toggle("dark");
+}
+
+actualizar();
+pintar();
 </script>
 
 </body>
 </html>
- 
