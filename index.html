@@ -2,148 +2,148 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>POS Tercenas Arias</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
+<title>Tercena Arias POS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{margin:0;font-family:Arial;background:#f2f2f2}
-header{background:black;color:white;text-align:center;padding:10px}
-header img{height:80px}
-.container{display:flex;height:calc(100vh - 120px)}
-.products{flex:2;padding:10px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.products button{padding:15px;font-size:16px;background:#111;color:white;border:none;border-radius:8px}
-.cart{flex:1;background:white;padding:10px;display:flex;flex-direction:column}
-#cartItems{flex:1;overflow:auto}
-.total{font-size:20px;font-weight:bold;margin:10px 0}
-.methods button{margin-top:5px;padding:10px;border:none;border-radius:6px;background:black;color:white}
-#openDrawer{background:#c40000}
-.keyboard{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:10px}
-.keyboard button{padding:15px;font-size:18px}
-#display{font-size:24px;text-align:right;border:2px solid black;padding:5px;margin-top:5px}
+body{
+    margin:0;
+    font-family:Arial;
+    background:#111;
+    color:white;
+}
+header{
+    background:#7a0000;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+}
+.logo{
+    text-align:center;
+    margin:10px;
+}
+.logo img{
+    width:120px;
+}
+.container{
+    padding:10px;
+}
+button{
+    padding:15px;
+    margin:5px;
+    font-size:18px;
+    border:none;
+    border-radius:8px;
+}
+.product{
+    background:#222;
+    color:white;
+    width:100%;
+}
+.cantidad-btn{
+    background:#b30000;
+    color:white;
+}
+.teclado{
+    position:fixed;
+    bottom:0;
+    width:100%;
+    background:#000;
+    padding:10px;
+}
+.teclado button{
+    width:30%;
+    margin:1%;
+    background:#333;
+    color:white;
+}
+.display{
+    background:white;
+    color:black;
+    font-size:22px;
+    padding:10px;
+    margin:10px 0;
+    text-align:right;
+    border-radius:8px;
+}
 </style>
 </head>
 
 <body>
 
-<header>
-<img src="logotipo.png">
-<h2>TERCENAS ARIAS</h2>
-</header>
+<header>Tercena Arias</header>
+
+<div class="logo">
+<img src="logo.png">
+</div>
 
 <div class="container">
 
-<div class="products">
-<button onclick="selectProduct('Pollo Entero')">Pollo Entero</button>
-<button onclick="selectProduct('Pollo (Info: $3 lb)')">Pollo x Libra</button>
-<button onclick="selectProduct('Alas (Info: $2.50 lb)')">Alas</button>
-<button onclick="selectProduct('Pechuga (Info: $3.50 lb)')">Pechuga</button>
-<button onclick="selectProduct('Molleja (Info: $2.80 lb)')">Molleja</button>
-<button onclick="selectProduct('Menudencia (Info: $1.50 lb)')">Menudencia</button>
-<button onclick="selectProduct('Presas (Info: $3 lb)')">Presas</button>
-</div>
+<div class="display" id="pantalla">0.00</div>
 
-<div class="cart">
+<h3>🐔 Pollo Entero</h3>
+<button class="cantidad-btn" onclick="setCantidad(1)">1</button>
+<button class="cantidad-btn" onclick="setCantidad(2)">2</button>
+<button class="cantidad-btn" onclick="setCantidad(3)">3</button>
 
-<div id="cartItems"></div>
-<div class="total" id="total">Total: $0.00</div>
+<h3>Productos</h3>
 
-<div>Precio:</div>
-<div id="display">0</div>
-
-<div class="keyboard">
-<button onclick="press(7)">7</button>
-<button onclick="press(8)">8</button>
-<button onclick="press(9)">9</button>
-<button onclick="press(4)">4</button>
-<button onclick="press(5)">5</button>
-<button onclick="press(6)">6</button>
-<button onclick="press(1)">1</button>
-<button onclick="press(2)">2</button>
-<button onclick="press(3)">3</button>
-<button onclick="press('.')">.</button>
-<button onclick="press(0)">0</button>
-<button onclick="clearDisplay()">C</button>
-</div>
-
-<div class="methods">
-<button onclick="addToCart()">Agregar</button>
-<button onclick="finishSale()">Finalizar Venta</button>
-<button onclick="downloadPDF()">Imprimir PDF</button>
-<button id="openDrawer" onclick="openDrawer()">Abrir Caja</button>
-<button onclick="newSale()">Nueva Venta</button>
-</div>
+<button class="product" onclick="nuevoTotal()">Pollo por libras</button>
+<button class="product" onclick="nuevoTotal()">Alas</button>
+<button class="product" onclick="nuevoTotal()">Pechuga</button>
+<button class="product" onclick="nuevoTotal()">Molleja</button>
+<button class="product" onclick="nuevoTotal()">Menudencia</button>
+<button class="product" onclick="nuevoTotal()">Presas</button>
 
 </div>
+
+<div class="teclado">
+<button onclick="numero(7)">7</button>
+<button onclick="numero(8)">8</button>
+<button onclick="numero(9)">9</button>
+
+<button onclick="numero(4)">4</button>
+<button onclick="numero(5)">5</button>
+<button onclick="numero(6)">6</button>
+
+<button onclick="numero(1)">1</button>
+<button onclick="numero(2)">2</button>
+<button onclick="numero(3)">3</button>
+
+<button onclick="numero(0)">0</button>
+<button onclick="numero('.')">.</button>
+<button onclick="borrar()">Borrar</button>
+
+<button style="background:#b30000;width:95%;" onclick="limpiar()">Nuevo</button>
 </div>
 
 <script>
-let selectedProduct="";
-let display="0";
-let cart=[];
-let total=0;
+let pantalla = document.getElementById("pantalla");
+let cantidad = 0;
 
-function selectProduct(name){
-selectedProduct=name;
+function numero(num){
+    if(pantalla.innerText == "0.00") pantalla.innerText="";
+    pantalla.innerText += num;
 }
 
-function press(num){
-if(display=="0") display="";
-display+=num;
-document.getElementById("display").innerText=display;
+function borrar(){
+    pantalla.innerText = pantalla.innerText.slice(0,-1);
 }
 
-function clearDisplay(){
-display="0";
-document.getElementById("display").innerText=display;
+function limpiar(){
+    pantalla.innerText="0.00";
+    cantidad=0;
 }
 
-function addToCart(){
-if(!selectedProduct) return alert("Seleccione producto");
-let price=parseFloat(display);
-cart.push({name:selectedProduct,price:price});
-total+=price;
-renderCart();
-clearDisplay();
+function setCantidad(num){
+    cantidad = num;
 }
 
-function renderCart(){
-let div=document.getElementById("cartItems");
-div.innerHTML="";
-cart.forEach(item=>{
-div.innerHTML+=`<div>${item.name} - $${item.price.toFixed(2)}</div>`;
-});
-document.getElementById("total").innerText="Total: $"+total.toFixed(2);
-}
-
-function finishSale(){
-alert("Venta Finalizada - Total: $"+total.toFixed(2));
-}
-
-function downloadPDF(){
-let content=`
-TERCENAS ARIAS
------------------------
-${cart.map(i=>i.name+" - $"+i.price.toFixed(2)).join("\n")}
------------------------
-TOTAL: $${total.toFixed(2)}
-Gracias por su compra
-`;
-let element=document.createElement("pre");
-element.innerText=content;
-html2pdf().from(element).save("Recibo_Tercenas_Arias.pdf");
-}
-
-function openDrawer(){
-alert("💵 Caja Abierta");
-}
-
-function newSale(){
-cart=[];
-total=0;
-renderCart();
-clearDisplay();
+function nuevoTotal(){
+    pantalla.innerText="0.00";
 }
 </script>
 
 </body>
 </html>
+ 
