@@ -9,140 +9,139 @@
 
 <style>
 body{
-    margin:0;
-    font-family:Arial, sans-serif;
-    background:#111;
-    color:white;
+margin:0;
+font-family:Arial;
+background:#f4f4f4;
 }
+
 header{
-    background:#000;
-    padding:15px;
-    text-align:center;
-    border-bottom:2px solid #00ff88;
+background:#000;
+color:white;
+text-align:center;
+padding:15px;
 }
+
 header img{
-    height:70px;
+height:90px;
+margin-bottom:10px;
 }
+
 .container{
-    display:flex;
-    height:calc(100vh - 110px);
+display:flex;
+height:calc(100vh - 150px);
 }
+
 .products{
-    flex:2;
-    padding:20px;
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:15px;
+flex:2;
+padding:20px;
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
 }
+
 .products button{
-    padding:20px;
-    font-size:18px;
-    background:#222;
-    color:white;
-    border:none;
-    border-radius:10px;
+padding:20px;
+font-size:18px;
+background:#111;
+color:white;
+border:none;
+border-radius:10px;
 }
+
 .cart{
-    flex:1;
-    background:#000;
-    padding:20px;
-    border-left:2px solid #00ff88;
-    display:flex;
-    flex-direction:column;
+flex:1;
+background:white;
+padding:20px;
+border-left:3px solid #000;
+display:flex;
+flex-direction:column;
 }
+
 .cart-items{
-    flex:1;
-    overflow:auto;
+flex:1;
+overflow:auto;
+margin-bottom:10px;
 }
+
 .total{
-    font-size:22px;
-    margin-top:10px;
+font-size:22px;
+font-weight:bold;
+margin:10px 0;
 }
+
 input{
-    width:100%;
-    padding:10px;
-    font-size:18px;
-    margin-top:5px;
+width:100%;
+padding:10px;
+font-size:18px;
+margin-top:5px;
 }
+
 .methods button{
-    margin-top:10px;
-    padding:12px;
-    font-size:16px;
-    background:#00ff88;
-    border:none;
-    border-radius:8px;
+margin-top:10px;
+padding:12px;
+font-size:16px;
+border:none;
+border-radius:8px;
+background:#000;
+color:white;
 }
-.keypad{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:5px;
-    margin-top:10px;
+
+#openDrawer{
+background:#cc0000;
+color:white;
+font-weight:bold;
 }
-.keypad button{
-    padding:15px;
-    font-size:18px;
-}
+
 footer{
-    text-align:center;
-    padding:10px;
-    background:#000;
+text-align:center;
+padding:10px;
+background:#000;
+color:white;
 }
 </style>
 </head>
 <body>
 
 <header>
-    <img src="logotipo.png">
-    <h2>TERCENAS ARIAS - SISTEMA POS</h2>
+<img src="logotipo.png">
+<h2>TERCENAS ARIAS</h2>
+<p>Sistema de Ventas</p>
 </header>
 
 <div class="container">
 
 <div class="products">
-    <button onclick="addProduct('Pollo Entero',10)">Pollo Entero $10</button>
-    <button onclick="addProduct('Pierna',3)">Pierna $3</button>
-    <button onclick="addProduct('Pechuga',4)">Pechuga $4</button>
-    <button onclick="addProduct('Alas',2)">Alas $2</button>
-    <button onclick="addProduct('Menudencia',1.5)">Menudencia $1.5</button>
+<button onclick="addProduct('Pollo Entero',10)">Pollo Entero</button>
+<button onclick="addByWeight('Pollo por Libra',3)">Pollo por Libra</button>
+<button onclick="addByWeight('Alas',2.50)">Alas por Libra</button>
+<button onclick="addByWeight('Pechuga',3.50)">Pechuga por Libra</button>
+<button onclick="addByWeight('Molleja',2.80)">Molleja por Libra</button>
+<button onclick="addByWeight('Menudencia',1.50)">Menudencia por Libra</button>
+<button onclick="addByWeight('Presas',3.00)">Presas por Libra</button>
 </div>
 
 <div class="cart">
-    <div class="cart-items" id="cart"></div>
-    <div class="total" id="total">Total: $0</div>
+<div class="cart-items" id="cart"></div>
+<div class="total" id="total">Total: $0.00</div>
 
-    <label>Cliente paga:</label>
-    <input type="text" id="paid" readonly>
+<label>Cliente paga:</label>
+<input type="number" id="paid">
 
-    <div class="keypad">
-        <button onclick="press(1)">1</button>
-        <button onclick="press(2)">2</button>
-        <button onclick="press(3)">3</button>
-        <button onclick="press(4)">4</button>
-        <button onclick="press(5)">5</button>
-        <button onclick="press(6)">6</button>
-        <button onclick="press(7)">7</button>
-        <button onclick="press(8)">8</button>
-        <button onclick="press(9)">9</button>
-        <button onclick="press('.')">.</button>
-        <button onclick="press(0)">0</button>
-        <button onclick="clearPaid()">C</button>
-    </div>
+<div id="change"></div>
 
-    <div id="change"></div>
-
-    <div class="methods">
-        <button onclick="finishSale('Efectivo')">Efectivo</button>
-        <button onclick="finishSale('QR')">QR</button>
-        <button onclick="finishSale('Transferencia')">Transferencia</button>
-        <button onclick="downloadPDF()">Descargar PDF</button>
-        <button onclick="sendWhatsApp()">Enviar WhatsApp</button>
-    </div>
+<div class="methods">
+<button onclick="finishSale('Efectivo')">Efectivo</button>
+<button onclick="finishSale('Transferencia')">Transferencia</button>
+<button onclick="downloadPDF()">Imprimir Recibo</button>
+<button id="openDrawer" onclick="openDrawer()">Abrir Caja</button>
+<button onclick="clearSale()">Nueva Venta</button>
+</div>
 </div>
 
 </div>
 
 <footer>
-    © 2026 Tercenas Arias
+© 2026 Tercenas Arias
 </footer>
 
 <script>
@@ -150,45 +149,64 @@ let cart = [];
 let total = 0;
 
 function addProduct(name, price){
-    cart.push({name,price});
-    total += price;
-    renderCart();
+cart.push({name,price});
+total += price;
+renderCart();
+}
+
+function addByWeight(name, pricePerLb){
+let lbs = prompt("¿Cuántas libras?");
+if(!lbs) return;
+let price = lbs * pricePerLb;
+cart.push({name: name + " ("+lbs+" lb)", price});
+total += price;
+renderCart();
 }
 
 function renderCart(){
-    const cartDiv = document.getElementById("cart");
-    cartDiv.innerHTML="";
-    cart.forEach(item=>{
-        cartDiv.innerHTML += `<div>${item.name} - $${item.price}</div>`;
-    });
-    document.getElementById("total").innerText="Total: $"+total.toFixed(2);
-}
-
-function press(num){
-    document.getElementById("paid").value += num;
-}
-
-function clearPaid(){
-    document.getElementById("paid").value="";
+const cartDiv = document.getElementById("cart");
+cartDiv.innerHTML="";
+cart.forEach(item=>{
+cartDiv.innerHTML += `<div>${item.name} - $${item.price.toFixed(2)}</div>`;
+});
+document.getElementById("total").innerText="Total: $"+total.toFixed(2);
 }
 
 function finishSale(method){
-    let paid = parseFloat(document.getElementById("paid").value || 0);
-    let change = paid - total;
-    document.getElementById("change").innerText="Cambio: $"+change.toFixed(2)+" | Método: "+method;
+let paid = parseFloat(document.getElementById("paid").value || 0);
+let change = paid - total;
+document.getElementById("change").innerHTML =
+"<b>Método:</b> "+method+"<br><b>Cambio:</b> $"+change.toFixed(2);
 }
 
 function downloadPDF(){
-    let element = document.querySelector(".cart");
-    html2pdf().from(element).save("recibo.pdf");
+let receipt = `
+TERCENAS ARIAS
+
+-------------------------
+${cart.map(i=> i.name+" - $"+i.price.toFixed(2)).join("\n")}
+-------------------------
+TOTAL: $${total.toFixed(2)}
+
+Gracias por su compra
+`;
+let element = document.createElement("pre");
+element.innerText = receipt;
+html2pdf().from(element).save("Recibo_Tercenas_Arias.pdf");
 }
 
-function sendWhatsApp(){
-    let message = "Compra en Tercenas Arias - Total: $" + total.toFixed(2);
-    window.open("https://wa.me/?text="+encodeURIComponent(message));
+function openDrawer(){
+alert("💵 Caja Abierta");
+}
+
+function clearSale(){
+cart=[];
+total=0;
+document.getElementById("paid").value="";
+document.getElementById("change").innerHTML="";
+renderCart();
 }
 </script>
 
 </body>
 </html>
- 
