@@ -3,207 +3,129 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TERCENA ARIAS POS EMPRESARIAL</title>
+<title>TERCENA ARIAS - POS EMPRESARIAL</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<style>
-body{font-family:Segoe UI;background:#f1f5f9}
-.dark{background:#0f172a;color:white}
-.btn{background:#b91c1c;color:white;border-radius:12px;font-weight:800;height:70px}
-.hidden{display:none}
-</style>
+<link rel="icon" href="logotipo.png">
 </head>
-<body>
 
-<!-- LOGIN -->
-<div id="login" class="fixed inset-0 bg-black flex items-center justify-center z-50">
-<div class="bg-white p-8 rounded-2xl text-center w-80">
-<img src="logotipo.png" class="w-20 mx-auto mb-4">
-<h2 class="font-bold mb-2">Ingresar PIN</h2>
-<input type="password" id="pinInput" class="border p-2 w-full text-center text-xl mb-4">
-<button onclick="login()" class="bg-green-600 text-white w-full py-2 rounded">Entrar</button>
+<body class="bg-slate-100">
+
+<div class="flex h-screen">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col">
+        <div class="p-5 border-b border-slate-700 text-center">
+            <img src="logotipo.png" class="w-16 mx-auto mb-2">
+            <h1 class="font-black text-lg">TERCENA ARIAS</h1>
+            <p class="text-xs text-slate-400">POS Empresarial</p>
+        </div>
+
+        <nav class="flex-1 p-3 space-y-2 text-sm font-semibold">
+            <button onclick="ir('dashboard')" class="menu-btn w-full text-left p-2 rounded bg-slate-800">📊 Dashboard</button>
+            <button onclick="ir('nueva')" class="menu-btn w-full text-left p-2 rounded hover:bg-slate-800">🛒 Nueva Venta</button>
+            <button onclick="ir('ventas')" class="menu-btn w-full text-left p-2 rounded hover:bg-slate-800">📋 Ventas</button>
+            <button onclick="ir('gastos')" class="menu-btn w-full text-left p-2 rounded hover:bg-slate-800">💸 Gastos</button>
+            <button onclick="ir('movimientos')" class="menu-btn w-full text-left p-2 rounded hover:bg-slate-800">🧾 Movimientos</button>
+            <button onclick="ir('cierre')" class="menu-btn w-full text-left p-2 rounded hover:bg-slate-800">🔒 Cierre Caja</button>
+            <button onclick="ir('config')" class="menu-btn w-full text-left p-2 rounded hover:bg-slate-800">⚙ Configuración</button>
+        </nav>
+
+        <div class="p-3 border-t border-slate-700 text-xs text-center text-slate-400">
+            Wilson PRO © 2026
+        </div>
+    </aside>
+
+    <!-- CONTENIDO -->
+    <main class="flex-1 overflow-y-auto p-6">
+
+        <!-- DASHBOARD -->
+        <section id="dashboard">
+            <h2 class="text-2xl font-black mb-6">Dashboard</h2>
+            <div class="grid grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded shadow">
+                    <p class="text-sm text-gray-500">Ventas Hoy</p>
+                    <h3 id="d-ventas" class="text-2xl font-black">$0.00</h3>
+                </div>
+                <div class="bg-white p-4 rounded shadow">
+                    <p class="text-sm text-gray-500">Gastos Hoy</p>
+                    <h3 id="d-gastos" class="text-2xl font-black">$0.00</h3>
+                </div>
+                <div class="bg-white p-4 rounded shadow">
+                    <p class="text-sm text-gray-500">Neto</p>
+                    <h3 id="d-neto" class="text-2xl font-black">$0.00</h3>
+                </div>
+                <div class="bg-white p-4 rounded shadow">
+                    <p class="text-sm text-gray-500">Ventas Totales</p>
+                    <h3 id="d-cantidad" class="text-2xl font-black">0</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- NUEVA VENTA -->
+        <section id="nueva" class="hidden">
+            <h2 class="text-2xl font-black mb-4">Nueva Venta</h2>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <div class="space-y-2">
+                        <button onclick="agregarProducto('Pollo Entero')" class="bg-red-600 text-white w-full p-3 rounded">Pollo Entero</button>
+                        <button onclick="agregarProducto('Pechuga')" class="bg-red-600 text-white w-full p-3 rounded">Pechuga</button>
+                        <button onclick="agregarProducto('Alas')" class="bg-red-600 text-white w-full p-3 rounded">Alas</button>
+                        <button onclick="agregarProducto('Menudo')" class="bg-red-600 text-white w-full p-3 rounded">Menudo</button>
+                        <button onclick="agregarProducto('Otros')" class="bg-gray-700 text-white w-full p-3 rounded">Otros</button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded shadow flex flex-col">
+                    <div id="carrito" class="flex-1 overflow-y-auto space-y-2"></div>
+                    <div class="border-t pt-3">
+                        <h3 class="text-xl font-black">Total: $<span id="total">0.00</span></h3>
+                        <button onclick="abrirPago()" class="mt-3 bg-black text-white w-full p-3 rounded font-bold">COBRAR</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VENTAS -->
+        <section id="ventas" class="hidden">
+            <h2 class="text-2xl font-black mb-4">Ventas</h2>
+            <div id="tabla-ventas" class="bg-white p-4 rounded shadow"></div>
+        </section>
+
+        <!-- GASTOS -->
+        <section id="gastos" class="hidden">
+            <h2 class="text-2xl font-black mb-4">Gastos</h2>
+            <button onclick="nuevoGasto()" class="bg-red-600 text-white px-4 py-2 rounded mb-4">+ Registrar Gasto</button>
+            <div id="tabla-gastos" class="bg-white p-4 rounded shadow"></div>
+        </section>
+
+        <!-- MOVIMIENTOS -->
+        <section id="movimientos" class="hidden">
+            <h2 class="text-2xl font-black mb-4">Movimientos de Caja</h2>
+            <div id="tabla-movimientos" class="bg-white p-4 rounded shadow"></div>
+        </section>
+
+        <!-- CIERRE -->
+        <section id="cierre" class="hidden">
+            <h2 class="text-2xl font-black mb-4">Cierre de Caja</h2>
+            <div class="bg-white p-6 rounded shadow">
+                <p class="mb-2">Saldo Actual: <strong>$<span id="saldo">0.00</span></strong></p>
+                <button onclick="cerrarCaja()" class="bg-black text-white px-4 py-2 rounded">Cerrar Jornada</button>
+            </div>
+        </section>
+
+        <!-- CONFIG -->
+        <section id="config" class="hidden">
+            <h2 class="text-2xl font-black mb-4">Configuración</h2>
+            <div class="bg-white p-6 rounded shadow space-y-3">
+                <button onclick="exportar()" class="bg-blue-600 text-white px-4 py-2 rounded">Exportar Backup</button>
+                <input type="file" onchange="importar(event)" class="block">
+            </div>
+        </section>
+
+    </main>
 </div>
-</div>
 
-<header class="bg-red-700 text-white p-4 flex justify-between">
-<div class="flex items-center gap-3">
-<img src="logotipo.png" class="w-10">
-<h1 class="font-black">TERCENA ARIAS</h1>
-</div>
-<div>
-Saldo: <span id="saldo">$0.00</span>
-</div>
-</header>
-
-<div class="flex">
-
-<!-- PRODUCTOS -->
-<div class="w-1/2 p-3 grid grid-cols-2 gap-3 bg-gray-100 min-h-screen">
-<button onclick="addItem('Pollo Entero')" class="btn">Pollo Entero</button>
-<button onclick="addItem('Pollo Libras')" class="btn">Pollo Libras</button>
-<button onclick="addItem('Alas')" class="btn">Alas</button>
-<button onclick="addItem('Pechuga')" class="btn">Pechuga</button>
-<button onclick="addItem('Menudo')" class="btn">Menudo</button>
-<button onclick="addItem('Otros')" class="btn bg-gray-600">Otros</button>
-</div>
-
-<!-- TICKET -->
-<div class="w-1/2 bg-white flex flex-col">
-<div class="bg-yellow-400 p-4 text-center">
-<h2 id="total" class="text-3xl font-black">$0.00</h2>
-</div>
-<div id="ticket" class="flex-1 overflow-y-auto p-2"></div>
-
-<div class="p-4 space-y-2">
-<select id="metodoPago" class="w-full border p-2">
-<option value="Efectivo">Efectivo</option>
-<option value="Transferencia">Transferencia</option>
-</select>
-
-<input type="number" id="recibido" placeholder="Monto recibido (si efectivo)" class="w-full border p-2">
-
-<button onclick="cobrar()" class="bg-black text-white py-3 rounded w-full font-bold">
-COBRAR
-</button>
-</div>
-</div>
-</div>
-
-<!-- PANEL ADMIN -->
-<div class="p-4 bg-white border-t space-y-2">
-<div id="dashboard"></div>
-<div class="flex gap-2 flex-wrap">
-<button onclick="abrirCaja()" class="bg-green-600 text-white px-3 py-2 rounded">Abrir Caja</button>
-<button onclick="arqueo()" class="bg-yellow-600 text-white px-3 py-2 rounded">Arqueo</button>
-<button onclick="verHistorial()" class="bg-blue-600 text-white px-3 py-2 rounded">Historial</button>
-<button onclick="registrarGasto()" class="bg-red-600 text-white px-3 py-2 rounded">Gasto</button>
-<button onclick="cerrarCaja()" class="bg-black text-white px-3 py-2 rounded">Cerrar Caja</button>
-<button onclick="toggleDark()" class="bg-purple-600 text-white px-3 py-2 rounded">Modo Oscuro</button>
-</div>
-</div>
-
-<script>
-let db = JSON.parse(localStorage.getItem("posEmpresarial")) || {
-pin:"1234",
-saldo:0,
-abierta:false,
-ventas:[],
-gastos:[],
-carrito:[]
-};
-
-function save(){ localStorage.setItem("posEmpresarial",JSON.stringify(db)); }
-
-function login(){
-if(document.getElementById("pinInput").value===db.pin){
-document.getElementById("login").style.display="none";
-update();
-}else alert("PIN incorrecto");
-}
-
-function abrirCaja(){
-if(db.abierta){ alert("Ya está abierta"); return;}
-let monto=parseFloat(prompt("Saldo inicial:"));
-if(!isNaN(monto)){
-db.saldo=monto;
-db.abierta=true;
-save();update();
-}
-}
-
-function addItem(nombre){
-if(!db.abierta){ alert("Caja cerrada"); return;}
-let precio=parseFloat(prompt("Precio de "+nombre));
-if(precio>0){
-db.carrito.push({nombre,precio});
-render();
-save();
-}
-}
-
-function render(){
-let html="";
-let total=0;
-db.carrito.forEach((i,index)=>{
-total+=i.precio;
-html+=`<div class="flex justify-between bg-gray-100 p-2 rounded mb-1">
-<span>${i.nombre}</span>
-<span>$${i.precio.toFixed(2)}</span>
-</div>`;
-});
-document.getElementById("ticket").innerHTML=html;
-document.getElementById("total").innerText="$"+total.toFixed(2);
-}
-
-function cobrar(){
-if(!db.abierta) return alert("Caja cerrada");
-if(db.carrito.length==0) return;
-
-let metodo=document.getElementById("metodoPago").value;
-let total=db.carrito.reduce((s,i)=>s+i.precio,0);
-
-if(metodo==="Efectivo"){
-let recibido=parseFloat(document.getElementById("recibido").value);
-if(recibido<total) return alert("Dinero insuficiente");
-alert("Cambio: $"+(recibido-total).toFixed(2));
-}
-
-db.saldo+=total;
-db.ventas.unshift({
-fecha:new Date().toLocaleString(),
-items:[...db.carrito],
-total,
-metodo
-});
-
-db.carrito=[];
-render();
-update();
-save();
-}
-
-function registrarGasto(){
-let monto=parseFloat(prompt("Monto gasto"));
-let desc=prompt("Descripción");
-if(monto>0){
-db.saldo-=monto;
-db.gastos.unshift({fecha:new Date().toLocaleString(),monto,desc});
-save();update();
-}
-}
-
-function verHistorial(){
-let texto="VENTAS:\n\n";
-db.ventas.forEach(v=>{
-texto+=v.fecha+" - $"+v.total.toFixed(2)+" ("+v.metodo+")\n";
-});
-alert(texto);
-}
-
-function arqueo(){
-alert("Saldo actual: $"+db.saldo.toFixed(2));
-}
-
-function cerrarCaja(){
-if(!db.abierta) return;
-alert("Caja cerrada\nSaldo final: $"+db.saldo.toFixed(2));
-db.abierta=false;
-db.carrito=[];
-save();location.reload();
-}
-
-function update(){
-document.getElementById("saldo").innerText="$"+db.saldo.toFixed(2);
-let totalVentas=db.ventas.reduce((s,v)=>s+v.total,0);
-let totalGastos=db.gastos.reduce((s,g)=>s+g.monto,0);
-document.getElementById("dashboard").innerText=
-"Ventas: $"+totalVentas.toFixed(2)+" | Gastos: $"+totalGastos.toFixed(2);
-}
-
-function toggleDark(){ document.body.classList.toggle("dark"); }
-
-update();
-render();
-</script>
-
+<script src="app.js"></script>
 </body>
 </html>
