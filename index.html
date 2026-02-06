@@ -9,6 +9,17 @@
 </head>
 
 <body class="bg-slate-100">
+<!-- MODAL APERTURA CAJA -->
+<div id="modal-apertura" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded shadow w-96">
+        <h2 class="text-xl font-black mb-4">Apertura de Caja</h2>
+        <p class="text-sm mb-2">Ingrese monto inicial:</p>
+        <input id="monto-inicial" type="number" class="w-full border p-2 rounded mb-4" placeholder="0.00">
+        <button onclick="abrirCaja()" class="bg-green-600 text-white w-full py-2 rounded font-bold">
+            Abrir Caja
+        </button>
+    </div>
+</div>
 
 <div class="flex h-screen">
 
@@ -129,6 +140,14 @@
 <script>
 
 let db = {
+    cajaAbierta: false,
+    saldo: 0,
+    ventas: [],
+    gastos: [],
+    movimientos: [],
+    carrito: []
+};
+
     saldo: 0,
     ventas: [],
     gastos: [],
@@ -137,6 +156,26 @@ let db = {
 };
 
 /* ---------- NAVEGACIÓN ---------- */
+function abrirCaja(){
+    let monto = parseFloat(document.getElementById("monto-inicial").value);
+
+    if(isNaN(monto) || monto < 0){
+        alert("Ingrese un monto válido");
+        return;
+    }
+
+    db.cajaAbierta = true;
+    db.saldo = monto;
+
+    db.movimientos.unshift({
+        tipo:"APERTURA",
+        monto: monto,
+        fecha: new Date().toLocaleString()
+    });
+
+    document.getElementById("modal-apertura").style.display="none";
+    actualizarTodo();
+}
 
 function ir(seccion){
     document.querySelectorAll("main section").forEach(s=>s.classList.add("hidden"));
@@ -184,6 +223,10 @@ function eliminarItem(i){
 }
 
 /* ---------- PAGO ---------- */
+if(!db.cajaAbierta){
+    alert("Debe abrir la caja primero");
+    return;
+}
 
 function abrirPago(){
     if(db.carrito.length===0) return;
@@ -328,13 +371,28 @@ function actualizarDashboard(){
 /* ---------- CIERRE ---------- */
 
 function cerrarCaja(){
-    alert("Caja cerrada.\nSaldo final: $" + db.saldo.toFixed(2));
+
+    if(!db.cajaAbierta){
+        alert("La caja ya está cerrada");
+        return;
+    }
+
     db.movimientos.unshift({
         tipo:"CIERRE",
         monto: db.saldo,
         fecha: new Date().toLocaleString()
     });
+
+    alert("Jornada cerrada.\nSaldo final: $" + db.saldo.toFixed(2));
+
+    db.cajaAbierta = false;
+    db.saldo = 0;
+
+    document.getElementById("modal-apertura").style.display="flex";
+
+    actualizarTodo();
 }
+
 
 /* ---------- BACKUP ---------- */
 
