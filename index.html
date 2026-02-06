@@ -126,6 +126,250 @@
     </main>
 </div>
 
-<script src="app.js"></script>
+<script>
+
+let db = {
+    saldo: 0,
+    ventas: [],
+    gastos: [],
+    movimientos: [],
+    carrito: []
+};
+
+/* ---------- NAVEGACIÓN ---------- */
+
+function ir(seccion){
+    document.querySelectorAll("main section").forEach(s=>s.classList.add("hidden"));
+    document.getElementById(seccion).classList.remove("hidden");
+}
+
+/* ---------- PRODUCTOS ---------- */
+
+function agregarProducto(nombre){
+    let precio = parseFloat(prompt("Precio de " + nombre));
+    if(isNaN(precio) || precio <= 0) return;
+
+    db.carrito.push({
+        nombre,
+        precio
+    });
+
+    pintarCarrito();
+}
+
+function pintarCarrito(){
+    let cont = document.getElementById("carrito");
+    cont.innerHTML = "";
+    let total = 0;
+
+    db.carrito.forEach((item,index)=>{
+        total += item.precio;
+        cont.innerHTML += `
+            <div class="flex justify-between bg-slate-100 p-2 rounded">
+                <span>${item.nombre}</span>
+                <div>
+                    $${item.precio.toFixed(2)}
+                    <button onclick="eliminarItem(${index})" class="text-red-600 ml-2">✖</button>
+                </div>
+            </div>
+        `;
+    });
+
+    document.getElementById("total").innerText = total.toFixed(2);
+}
+
+function eliminarItem(i){
+    db.carrito.splice(i,1);
+    pintarCarrito();
+}
+
+/* ---------- PAGO ---------- */
+
+function abrirPago(){
+    if(db.carrito.length===0) return;
+
+    let total = db.carrito.reduce((s,i)=>s+i.precio,0);
+    let paga = parseFloat(prompt("Total: $" + total.toFixed(2) + "\nIngrese efectivo recibido"));
+
+    if(isNaN(paga) || paga < total){
+        alert("Pago insuficiente");
+        return;
+    }
+
+    let cambio = paga - total;
+
+    let venta = {
+        id: Date.now(),
+        fecha: new Date().toLocaleString(),
+        items: [...db.carrito],
+        total
+    };
+
+    db.ventas.unshift(venta);
+    db.saldo += total;
+
+    db.movimientos.unshift({
+        tipo:"VENTA",
+        monto: total,
+        fecha: venta.fecha
+    });
+
+    alert("Cambio: $" + cambio.toFixed(2));
+
+    db.carrito=[];
+    pintarCarrito();
+    actualizarTodo();
+}
+
+/* ---------- GASTOS ---------- */
+
+function nuevoGasto(){
+    let monto = parseFloat(prompt("Monto del gasto"));
+    if(isNaN(monto) || monto<=0) return;
+
+    let motivo = prompt("Motivo del gasto");
+    if(!motivo) return;
+
+    let gasto = {
+        fecha: new Date().toLocaleString(),
+        monto,
+        motivo
+    };
+
+    db.gastos.unshift(gasto);
+    db.saldo -= monto;
+
+    db.movimientos.unshift({
+        tipo:"GASTO",
+        monto: -monto,
+        fecha: gasto.fecha
+    });
+
+    actualizarTodo();
+}
+
+/* ---------- TABLAS ---------- */
+
+function pintarVentas(){
+    let cont = document.getElementById("tabla-ventas");
+    cont.innerHTML = `
+        <table class="w-full text-sm">
+            <tr class="font-bold border-b">
+                <td>ID</td>
+                <td>Fecha</td>
+                <td>Total</td>
+            </tr>
+            ${db.ventas.map(v=>`
+                <tr class="border-b">
+                    <td>${v.id}</td>
+                    <td>${v.fecha}</td>
+                    <td>$${v.total.toFixed(2)}</td>
+                </tr>
+            `).join("")}
+        </table>
+    `;
+}
+
+function pintarGastos(){
+    let cont = document.getElementById("tabla-gastos");
+    cont.innerHTML = `
+        <table class="w-full text-sm">
+            <tr class="font-bold border-b">
+                <td>Fecha</td>
+                <td>Motivo</td>
+                <td>Monto</td>
+            </tr>
+            ${db.gastos.map(g=>`
+                <tr class="border-b">
+                    <td>${g.fecha}</td>
+                    <td>${g.motivo}</td>
+                    <td class="text-red-600">-$${g.monto.toFixed(2)}</td>
+                </tr>
+            `).join("")}
+        </table>
+    `;
+}
+
+function pintarMovimientos(){
+    let cont = document.getElementById("tabla-movimientos");
+    cont.innerHTML = `
+        <table class="w-full text-sm">
+            <tr class="font-bold border-b">
+                <td>Fecha</td>
+                <td>Tipo</td>
+                <td>Monto</td>
+            </tr>
+            ${db.movimientos.map(m=>`
+                <tr class="border-b">
+                    <td>${m.fecha}</td>
+                    <td>${m.tipo}</td>
+                    <td class="${m.monto<0?'text-red-600':'text-green-600'}">
+                        ${m.monto<0?'-':'+'}$${Math.abs(m.monto).toFixed(2)}
+                    </td>
+                </tr>
+            `).join("")}
+        </table>
+    `;
+}
+
+/* ---------- DASHBOARD ---------- */
+
+function actualizarDashboard(){
+    let ventasHoy = db.ventas.reduce((s,v)=>s+v.total,0);
+    let gastosHoy = db.gastos.reduce((s,g)=>s+g.monto,0);
+
+    document.getElementById("d-ventas").innerText = "$"+ventasHoy.toFixed(2);
+    document.getElementById("d-gastos").innerText = "$"+gastosHoy.toFixed(2);
+    document.getElementById("d-neto").innerText = "$"+(ventasHoy-gastosHoy).toFixed(2);
+    document.getElementById("d-cantidad").innerText = db.ventas.length;
+    document.getElementById("saldo").innerText = db.saldo.toFixed(2);
+}
+
+/* ---------- CIERRE ---------- */
+
+function cerrarCaja(){
+    alert("Caja cerrada.\nSaldo final: $" + db.saldo.toFixed(2));
+    db.movimientos.unshift({
+        tipo:"CIERRE",
+        monto: db.saldo,
+        fecha: new Date().toLocaleString()
+    });
+}
+
+/* ---------- BACKUP ---------- */
+
+function exportar(){
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+    let dl = document.createElement("a");
+    dl.setAttribute("href",dataStr);
+    dl.setAttribute("download","backup_pos.json");
+    dl.click();
+}
+
+function importar(e){
+    let file = e.target.files[0];
+    let reader = new FileReader();
+    reader.onload = function(evt){
+        db = JSON.parse(evt.target.result);
+        actualizarTodo();
+    };
+    reader.readAsText(file);
+}
+
+/* ---------- ACTUALIZAR TODO ---------- */
+
+function actualizarTodo(){
+    pintarVentas();
+    pintarGastos();
+    pintarMovimientos();
+    actualizarDashboard();
+}
+
+/* ---------- INICIO ---------- */
+
+actualizarTodo();
+
+</script>
+
 </body>
 </html>
