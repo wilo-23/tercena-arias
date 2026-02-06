@@ -15,7 +15,7 @@ body{font-family:Segoe UI;background:#f1f5f9}
 </head>
 <body>
 
-<!-- LOGIN PIN -->
+<!-- LOGIN -->
 <div id="login" class="fixed inset-0 bg-black flex items-center justify-center z-50">
 <div class="bg-white p-8 rounded-2xl text-center w-80">
 <img src="logotipo.png" class="w-20 mx-auto mb-4">
@@ -52,16 +52,14 @@ body{font-family:Segoe UI;background:#f1f5f9}
 <div class="bg-yellow-400 p-4 text-center">
 <h2 id="total" class="text-3xl font-black">$0.00</h2>
 </div>
-
 <div id="ticket" class="flex-1 overflow-y-auto p-2 space-y-2 pb-28"></div>
-
 <button onclick="cobrar()" class="absolute bottom-4 left-4 right-4 bg-black text-white py-4 rounded-xl font-black">
 COBRAR 💰
 </button>
 </div>
 </div>
 
-<!-- PANEL INFERIOR -->
+<!-- PANEL -->
 <div class="p-4 bg-white border-t space-y-2">
 <div id="dashboard"></div>
 <div class="flex gap-2 flex-wrap">
@@ -75,7 +73,7 @@ COBRAR 💰
 </div>
 </div>
 
-<!-- MODAL TECLADO -->
+<!-- MODAL -->
 <div id="modal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center">
 <div class="bg-white p-6 rounded-2xl text-center">
 <h2 id="productoNombre" class="font-bold mb-2"></h2>
@@ -104,6 +102,8 @@ Agregar
 let db = JSON.parse(localStorage.getItem("posProMax")) || {
 pin:"1234",
 saldo:0,
+saldoInicial:0,
+jornadaAbierta:false,
 ventas:[],
 gastos:[],
 carrito:[],
@@ -121,12 +121,28 @@ function login(){
 let p=document.getElementById("pinInput").value;
 if(p===db.pin){
 document.getElementById("login").style.display="none";
+
+if(!db.jornadaAbierta){
+let apertura=parseFloat(prompt("Ingrese saldo inicial de caja:"));
+if(!isNaN(apertura) && apertura>=0){
+db.saldo=apertura;
+db.saldoInicial=apertura;
+db.jornadaAbierta=true;
+guardar();
+actualizar();
+}else{
+alert("Debe ingresar un saldo válido");
+location.reload();
+}
+}
+
 }else{
 alert("PIN incorrecto");
 }
 }
 
 function abrirTeclado(nombre){
+if(!db.jornadaAbierta){ alert("Debe abrir caja primero"); return; }
 productoActual=nombre;
 valor="";
 document.getElementById("productoNombre").innerText=nombre;
@@ -176,12 +192,17 @@ guardar();
 }
 
 function cobrar(){
+if(!db.jornadaAbierta){ alert("Debe abrir caja"); return; }
 if(db.carrito.length==0)return;
+
 let total=db.carrito.reduce((s,i)=>s+i.p,0);
 db.saldo+=total;
+
 let venta={fecha:new Date().toLocaleString(),items:[...db.carrito],total};
 db.ventas.unshift(venta);
+
 enviarWhatsApp(venta);
+
 db.carrito=[];
 pintar();
 actualizar();
@@ -198,6 +219,8 @@ window.open("https://wa.me/?text="+encodeURIComponent(texto));
 }
 
 function registrarGasto(){
+if(!db.jornadaAbierta){ alert("Debe abrir caja"); return; }
+
 let monto=parseFloat(prompt("Monto gasto:"));
 let desc=prompt("Descripción:");
 if(monto>0 && desc){
@@ -245,18 +268,38 @@ reader.readAsText(file);
 }
 
 function cerrarCaja(){
-if(confirm("¿Cerrar jornada?")){
+if(!db.jornadaAbierta){
+alert("No hay jornada abierta");
+return;
+}
+
+let ventasTotal=db.ventas.reduce((s,v)=>s+v.total,0);
+let gastosTotal=db.gastos.reduce((s,g)=>s+g.m,0);
+let saldoFinal=db.saldo;
+
+alert(
+"Cierre de Caja\n\n"+
+"Saldo Inicial: $"+db.saldoInicial.toFixed(2)+"\n"+
+"Ventas: $"+ventasTotal.toFixed(2)+"\n"+
+"Gastos: $"+gastosTotal.toFixed(2)+"\n"+
+"Saldo Final: $"+saldoFinal.toFixed(2)
+);
+
 db.cierres.unshift({
 fecha:new Date().toLocaleString(),
-saldo:db.saldo,
-ventas:db.ventas.length
+saldoInicial:db.saldoInicial,
+ventas:ventasTotal,
+gastos:gastosTotal,
+saldoFinal:saldoFinal
 });
+
 db.saldo=0;
+db.saldoInicial=0;
+db.jornadaAbierta=false;
 db.ventas=[];
 db.gastos=[];
 guardar();
 location.reload();
-}
 }
 
 function toggleDark(){
