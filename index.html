@@ -3,240 +3,339 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WILSON POS PRO</title>
+<title>WILSON POS ENTERPRISE</title>
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-body { margin:0; font-family:Segoe UI; background:#f1f5f9; overflow:hidden; }
-.sidebar { width:220px; background:#111827; color:white; }
-.sidebar button { width:100%; padding:16px; text-align:left; font-weight:bold; border-bottom:1px solid #1f2937; }
-.sidebar button:hover { background:#1f2937; }
-.tab-active { background:#7c2d12 !important; }
-.product-btn {
-    background:#b91c1c;
-    color:white;
-    font-weight:bold;
-    border-radius:12px;
-    height:80px;
-    font-size:14px;
-}
-.product-btn:active { transform:scale(0.95); }
-
-.ticket {
-    width:280px;
-    font-family:monospace;
-    font-size:12px;
-}
-.hidden { display:none; }
+body{margin:0;font-family:Segoe UI;background:#f1f5f9;overflow:hidden;}
+.sidebar{width:240px;background:#0f172a;color:white;}
+.sidebar button{width:100%;padding:18px;text-align:left;font-weight:700;border-bottom:1px solid #1e293b;}
+.sidebar button:hover{background:#1e293b;}
+.active-tab{background:#7c2d12 !important;}
+.section{display:none;}
+.section.active{display:flex;}
+.ticket{width:280px;font-family:monospace;font-size:12px;}
 </style>
 </head>
 <body class="flex h-screen">
 
 <!-- SIDEBAR -->
 <div class="sidebar flex flex-col">
-    <div class="p-4 text-center border-b border-gray-700">
-        <img src="logotipo.png" class="w-20 mx-auto mb-2">
-        <h1 class="font-black text-sm">WILSON POS PRO</h1>
-    </div>
-    <button onclick="ver('vender')" id="btn-vender" class="tab-active">🛒 Vender</button>
-    <button onclick="ver('historial')" id="btn-historial">📋 Ventas</button>
-    <button onclick="ver('gastos')" id="btn-gastos">💸 Gastos</button>
-    <button onclick="ver('movimientos')" id="btn-movimientos">📊 Movimientos</button>
+  <div class="p-5 text-center border-b border-gray-700">
+    <img src="logotipo.png" class="w-20 mx-auto mb-2">
+    <h1 class="font-black text-sm">WILSON POS</h1>
+    <p class="text-xs text-gray-400">Enterprise</p>
+  </div>
+  <button onclick="UI.switch('dashboard')" id="tab-dashboard" class="active-tab">📊 Dashboard</button>
+  <button onclick="UI.switch('ventas')" id="tab-ventas">🛒 Ventas</button>
+  <button onclick="UI.switch('gastos')" id="tab-gastos">💸 Gastos</button>
+  <button onclick="UI.switch('movimientos')" id="tab-movimientos">📋 Movimientos</button>
 </div>
 
-<!-- CONTENIDO -->
 <div class="flex-1 flex flex-col">
 
 <!-- HEADER -->
 <div class="bg-white shadow p-4 flex justify-between items-center">
-    <div>
-        <h2 class="font-black text-xl">TERCENA ARIAS</h2>
-        <p class="text-xs text-gray-500" id="fecha-hoy"></p>
-    </div>
-    <div class="text-right">
-        <p class="text-xs text-gray-500">Saldo Caja</p>
-        <p id="saldo" class="text-2xl font-black text-green-600">$0.00</p>
-    </div>
+  <div>
+    <h2 class="font-black text-xl">TERCENA ARIAS</h2>
+    <p id="fechaActual" class="text-xs text-gray-500"></p>
+  </div>
+  <div class="text-right">
+    <p id="estadoCaja" class="font-bold text-red-600">CERRADA</p>
+    <p id="saldoCaja" class="text-2xl font-black text-green-600">$0.00</p>
+  </div>
 </div>
 
-<!-- VENDER -->
-<div id="sec-vender" class="flex flex-1 overflow-hidden">
+<!-- DASHBOARD -->
+<div id="dashboard" class="section active flex-1 p-6 flex-col overflow-y-auto bg-slate-100">
+  <div class="grid grid-cols-4 gap-6">
+    <div class="bg-white p-6 rounded-xl shadow">
+      <p>Ventas Totales</p>
+      <p id="statVentas" class="text-2xl font-black">$0.00</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow">
+      <p>Gastos Totales</p>
+      <p id="statGastos" class="text-2xl font-black">$0.00</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow">
+      <p>Utilidad</p>
+      <p id="statUtilidad" class="text-2xl font-black">$0.00</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow">
+      <p>Ventas Registradas</p>
+      <p id="statCantidad" class="text-2xl font-black">0</p>
+    </div>
+  </div>
+</div>
 
-    <!-- PRODUCTOS -->
-    <div class="w-1/2 p-4 grid grid-cols-2 gap-4 overflow-y-auto bg-slate-100">
-        <button class="product-btn" onclick="agregar('Pollo Entero')">Pollo Entero</button>
-        <button class="product-btn" onclick="agregar('Pechuga')">Pechuga</button>
-        <button class="product-btn" onclick="agregar('Alas')">Alas</button>
-        <button class="product-btn" onclick="agregar('Menudo')">Menudo</button>
-        <button class="product-btn bg-gray-700" onclick="agregar('Otros')">Otros</button>
+<!-- VENTAS -->
+<div id="ventas" class="section flex-1 bg-white">
+  <div class="flex flex-1">
+    <div class="w-1/2 p-6 bg-slate-50 grid grid-cols-2 gap-4">
+      <button onclick="Ventas.agregar()" class="bg-red-700 text-white p-6 rounded-xl font-bold">
+        + Producto
+      </button>
     </div>
 
-    <!-- TICKET -->
-    <div class="w-1/2 bg-white flex flex-col border-l">
-        <div class="p-4 bg-yellow-400 text-center">
-            <h2 id="total" class="text-3xl font-black">$0.00</h2>
-        </div>
-        <div id="lista" class="flex-1 overflow-y-auto p-4 space-y-2"></div>
-        <button onclick="cobrar()" class="m-4 bg-black text-white py-4 rounded-xl font-black text-lg">
-            COBRAR
+    <div class="w-1/2 border-l flex flex-col">
+      <div class="bg-yellow-400 p-4 text-center">
+        <h2 id="totalVenta" class="text-3xl font-black">$0.00</h2>
+      </div>
+      <div id="carritoLista" class="flex-1 overflow-y-auto p-4 space-y-2"></div>
+      <div class="p-4">
+        <button onclick="Ventas.abrirCobro()" class="w-full bg-black text-white py-4 rounded-xl font-bold">
+          COBRAR
         </button>
+      </div>
     </div>
-</div>
-
-<!-- HISTORIAL -->
-<div id="sec-historial" class="hidden flex-1 p-6 overflow-y-auto">
-    <h3 class="font-black mb-4">Ventas del Día</h3>
-    <div id="render-historial" class="space-y-2"></div>
+  </div>
 </div>
 
 <!-- GASTOS -->
-<div id="sec-gastos" class="hidden flex-1 p-6 overflow-y-auto">
-    <button onclick="nuevoGasto()" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold mb-6">
-        + Registrar Gasto
-    </button>
-    <div id="render-gastos" class="space-y-2"></div>
+<div id="gastos" class="section flex-1 p-6 bg-white flex-col">
+  <button onclick="Gastos.abrir()" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold mb-6">
+    + Registrar Gasto
+  </button>
+  <div id="listaGastos" class="space-y-2 overflow-y-auto flex-1"></div>
 </div>
 
 <!-- MOVIMIENTOS -->
-<div id="sec-movimientos" class="hidden flex-1 p-6 overflow-y-auto">
-    <h3 class="font-black mb-4">Movimientos de Caja</h3>
-    <div id="render-movimientos" class="space-y-2"></div>
+<div id="movimientos" class="section flex-1 p-6 bg-white flex-col">
+  <div id="listaMovimientos" class="space-y-2 overflow-y-auto flex-1"></div>
 </div>
 
 </div>
 
-<!-- MODAL PRECIO -->
-<div id="modal-precio" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center">
-    <div class="bg-white p-8 rounded-2xl text-center">
-        <h3 id="producto-nombre" class="font-black text-lg mb-4"></h3>
-        <input type="number" id="input-precio" class="border p-3 text-xl w-48 text-center">
-        <br><br>
-        <button onclick="confirmarPrecio()" class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold">
-            Agregar
-        </button>
+<!-- MODALES -->
+
+<div id="modalCaja" class="fixed inset-0 bg-black/70 hidden items-center justify-center">
+  <div class="bg-white p-8 rounded-2xl w-96 text-center">
+    <h3 class="font-black mb-4">Abrir Caja</h3>
+    <input type="number" id="inputCaja" placeholder="Monto inicial"
+      class="border p-3 w-full text-center text-xl mb-4">
+    <button onclick="Caja.abrir()" class="bg-green-600 text-white w-full py-3 rounded-xl font-bold">
+      CONFIRMAR
+    </button>
+  </div>
+</div>
+
+<div id="modalCobro" class="fixed inset-0 bg-black/70 hidden items-center justify-center">
+  <div class="bg-white p-8 rounded-2xl w-96">
+    <h3 class="font-black text-lg mb-4 text-center">Cobrar Venta</h3>
+    <p class="text-center text-xl mb-4">
+      Total: <span id="cobroTotal" class="font-black">$0.00</span>
+    </p>
+    <select id="metodoPago" class="border p-3 w-full mb-4">
+      <option value="EFECTIVO">Efectivo</option>
+      <option value="QR">QR</option>
+      <option value="TRANSFERENCIA">Transferencia</option>
+    </select>
+    <div id="bloqueEfectivo">
+      <input type="number" id="pagoRecibido"
+        placeholder="Pago recibido"
+        class="border p-3 w-full mb-3">
+      <p class="text-right">
+        Cambio: <span id="cambioCalc">$0.00</span>
+      </p>
     </div>
+    <button onclick="Ventas.confirmarCobro()"
+      class="bg-black text-white w-full py-3 rounded-xl font-bold mt-4">
+      CONFIRMAR VENTA
+    </button>
+  </div>
 </div>
 
-<!-- MODAL TICKET -->
-<div id="modal-ticket" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center">
-    <div class="bg-white p-6 ticket">
-        <div class="text-center">
-            <img src="logotipo.png" class="w-20 mx-auto">
-            <p>TERCENA ARIAS</p>
-            <p id="ticket-fecha"></p>
-        </div>
-        <hr>
-        <div id="ticket-items"></div>
-        <hr>
-        <p class="text-right font-bold" id="ticket-total"></p>
-        <br>
-        <button onclick="imprimir()" class="bg-green-600 text-white w-full py-2">Imprimir</button>
-        <button onclick="cerrarTicket()" class="bg-gray-800 text-white w-full py-2 mt-2">Cerrar</button>
+<div id="modalTicket" class="fixed inset-0 bg-black/80 hidden items-center justify-center">
+  <div class="bg-white p-6 ticket">
+    <div class="text-center">
+      <img src="logotipo.png" class="w-20 mx-auto mb-2">
+      <p>TERCENA ARIAS</p>
+      <p id="ticketFecha"></p>
     </div>
+    <hr>
+    <div id="ticketItems"></div>
+    <hr>
+    <p id="ticketMetodo"></p>
+    <p id="ticketCambio"></p>
+    <p class="text-right font-bold" id="ticketTotal"></p>
+    <button onclick="window.print()" class="bg-green-600 text-white w-full py-2 mt-4">Imprimir</button>
+    <button onclick="UI.cerrarTicket()" class="bg-gray-800 text-white w-full py-2 mt-2">Cerrar</button>
+  </div>
 </div>
 
 <script>
-let db = JSON.parse(localStorage.getItem('wilson_pos')) || {
-    saldo:0, ventas:[], gastos:[], movimientos:[], carrito:[]
+
+const Store={
+  data:JSON.parse(localStorage.getItem("wilson_enterprise"))||{
+    cajaAbierta:false,
+    saldo:0,
+    ventas:[],
+    gastos:[],
+    movimientos:[]
+  },
+  save(){localStorage.setItem("wilson_enterprise",JSON.stringify(this.data))}
 };
 
-let productoActual = "";
+const UI={
+  switch(sec){
+    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+    document.getElementById(sec).classList.add("active");
+    document.querySelectorAll(".sidebar button").forEach(b=>b.classList.remove("active-tab"));
+    document.getElementById("tab-"+sec).classList.add("active-tab");
+  },
+  actualizar(){
+    document.getElementById("estadoCaja").innerText=Store.data.cajaAbierta?"ABIERTA":"CERRADA";
+    document.getElementById("estadoCaja").className=
+      Store.data.cajaAbierta?"font-bold text-green-600":"font-bold text-red-600";
+    document.getElementById("saldoCaja").innerText="$"+Store.data.saldo.toFixed(2);
 
-function guardar(){ localStorage.setItem('wilson_pos', JSON.stringify(db)); }
+    const tv=Store.data.ventas.reduce((a,v)=>a+v.total,0);
+    const tg=Store.data.gastos.reduce((a,g)=>a+g.monto,0);
 
-function ver(sec){
-    ['vender','historial','gastos','movimientos'].forEach(s=>{
-        document.getElementById('sec-'+s).classList.add('hidden');
-        document.getElementById('btn-'+s).classList.remove('tab-active');
-    });
-    document.getElementById('sec-'+sec).classList.remove('hidden');
-    document.getElementById('btn-'+sec).classList.add('tab-active');
-}
+    document.getElementById("statVentas").innerText="$"+tv.toFixed(2);
+    document.getElementById("statGastos").innerText="$"+tg.toFixed(2);
+    document.getElementById("statUtilidad").innerText="$"+(tv-tg).toFixed(2);
+    document.getElementById("statCantidad").innerText=Store.data.ventas.length;
+  },
+  cerrarTicket(){
+    document.getElementById("modalTicket").classList.add("hidden");
+  }
+};
 
-function agregar(nombre){
-    productoActual = nombre;
-    document.getElementById('producto-nombre').innerText = nombre;
-    document.getElementById('modal-precio').classList.remove('hidden');
-}
+const Caja={
+  abrir(){
+    const monto=parseFloat(document.getElementById("inputCaja").value);
+    if(isNaN(monto)||monto<0)return;
+    Store.data.cajaAbierta=true;
+    Store.data.saldo=monto;
+    Store.data.movimientos.unshift({tipo:"APERTURA",monto,fecha:new Date().toLocaleString()});
+    Store.save();
+    UI.actualizar();
+    document.getElementById("modalCaja").classList.add("hidden");
+  }
+};
 
-function confirmarPrecio(){
-    let precio = parseFloat(document.getElementById('input-precio').value);
-    if(!precio) return;
-    db.carrito.push({nombre:productoActual, precio});
-    document.getElementById('modal-precio').classList.add('hidden');
-    document.getElementById('input-precio').value="";
-    pintarCarrito();
-    guardar();
-}
-
-function pintarCarrito(){
-    let lista=document.getElementById('lista');
-    lista.innerHTML="";
+const Ventas={
+  carrito:[],
+  agregar(){
+    if(!Store.data.cajaAbierta){
+      document.getElementById("modalCaja").classList.remove("hidden");
+      document.getElementById("modalCaja").classList.add("flex");
+      return;
+    }
+    const precio=parseFloat(prompt("Precio producto"));
+    if(!precio)return;
+    this.carrito.push({nombre:"Producto",precio});
+    this.render();
+  },
+  render(){
+    const cont=document.getElementById("carritoLista");
+    cont.innerHTML="";
     let total=0;
-    db.carrito.forEach((p,i)=>{
-        total+=p.precio;
-        lista.innerHTML+=`
-        <div class="flex justify-between bg-gray-100 p-3 rounded">
-            <span>${p.nombre}</span>
-            <span>$${p.precio.toFixed(2)}</span>
-        </div>`;
+    this.carrito.forEach((p,i)=>{
+      total+=p.precio;
+      cont.innerHTML+=`
+      <div class="flex justify-between bg-gray-100 p-3 rounded">
+        <span>${p.nombre}</span>
+        <span>$${p.precio.toFixed(2)}</span>
+      </div>`;
     });
-    document.getElementById('total').innerText="$"+total.toFixed(2);
-}
+    document.getElementById("totalVenta").innerText="$"+total.toFixed(2);
+  },
+  total(){return this.carrito.reduce((a,p)=>a+p.precio,0)},
+  abrirCobro(){
+    if(this.carrito.length===0)return;
+    document.getElementById("modalCobro").classList.remove("hidden");
+    document.getElementById("modalCobro").classList.add("flex");
+    document.getElementById("cobroTotal").innerText="$"+this.total().toFixed(2);
+  },
+  confirmarCobro(){
+    const total=this.total();
+    const metodo=document.getElementById("metodoPago").value;
+    let pago=total;
+    let cambio=0;
+    if(metodo==="EFECTIVO"){
+      pago=parseFloat(document.getElementById("pagoRecibido").value);
+      if(pago<total)return;
+      cambio=pago-total;
+    }
+    const venta={fecha:new Date().toLocaleString(),items:this.carrito,total,metodo,cambio};
+    Store.data.ventas.unshift(venta);
+    Store.data.saldo+=total;
+    Store.data.movimientos.unshift({tipo:"VENTA",monto:total,fecha:new Date().toLocaleString()});
+    this.carrito=[];
+    this.render();
+    Store.save();
+    UI.actualizar();
+    document.getElementById("modalCobro").classList.add("hidden");
 
-function cobrar(){
-    if(db.carrito.length===0) return;
-    let total=db.carrito.reduce((a,b)=>a+b.precio,0);
-    let venta={fecha:new Date().toLocaleString(), items:[...db.carrito], total};
-    db.ventas.unshift(venta);
-    db.saldo+=total;
-    db.movimientos.unshift({tipo:"VENTA", monto:total, fecha:new Date().toLocaleString()});
-    db.carrito=[];
-    guardar();
-    pintarCarrito();
-    actualizar();
-    mostrarTicket(venta);
-}
+    document.getElementById("ticketFecha").innerText=venta.fecha;
+    document.getElementById("ticketItems").innerHTML=
+      venta.items.map(i=>`<div class="flex justify-between"><span>${i.nombre}</span><span>$${i.precio.toFixed(2)}</span></div>`).join("");
+    document.getElementById("ticketMetodo").innerText="Método: "+metodo;
+    document.getElementById("ticketCambio").innerText="Cambio: $"+cambio.toFixed(2);
+    document.getElementById("ticketTotal").innerText="TOTAL: $"+total.toFixed(2);
+    document.getElementById("modalTicket").classList.remove("hidden");
+    document.getElementById("modalTicket").classList.add("flex");
+  }
+};
 
-function mostrarTicket(v){
-    document.getElementById('ticket-fecha').innerText=v.fecha;
-    document.getElementById('ticket-items').innerHTML=
-        v.items.map(i=>`<div class="flex justify-between"><span>${i.nombre}</span><span>$${i.precio.toFixed(2)}</span></div>`).join("");
-    document.getElementById('ticket-total').innerText="TOTAL: $"+v.total.toFixed(2);
-    document.getElementById('modal-ticket').classList.remove('hidden');
-}
+const Gastos={
+  abrir(){
+    if(!Store.data.cajaAbierta)return;
+    const monto=parseFloat(prompt("Monto"));
+    const motivo=prompt("Motivo");
+    if(!monto||!motivo)return;
+    Store.data.gastos.unshift({monto,motivo});
+    Store.data.saldo-=monto;
+    Store.data.movimientos.unshift({tipo:"GASTO",monto:-monto,fecha:new Date().toLocaleString()});
+    Store.save();
+    UI.actualizar();
+    this.render();
+  },
+  render(){
+    const cont=document.getElementById("listaGastos");
+    cont.innerHTML="";
+    Store.data.gastos.forEach(g=>{
+      cont.innerHTML+=`
+      <div class="bg-red-100 p-3 rounded flex justify-between">
+        <span>${g.motivo}</span>
+        <span>-$${g.monto.toFixed(2)}</span>
+      </div>`;
+    });
+  }
+};
 
-function cerrarTicket(){ document.getElementById('modal-ticket').classList.add('hidden'); }
+const Movimientos={
+  render(){
+    const cont=document.getElementById("listaMovimientos");
+    cont.innerHTML="";
+    Store.data.movimientos.forEach(m=>{
+      cont.innerHTML+=`
+      <div class="bg-gray-100 p-3 rounded flex justify-between">
+        <span>${m.tipo}</span>
+        <span>$${m.monto.toFixed(2)}</span>
+      </div>`;
+    });
+  }
+};
 
-function imprimir(){ window.print(); }
+document.addEventListener("input",e=>{
+  if(e.target.id==="pagoRecibido"){
+    const total=Ventas.total();
+    const pago=parseFloat(e.target.value);
+    const cambio=pago-total;
+    document.getElementById("cambioCalc").innerText=
+      pago>=total?"$"+cambio.toFixed(2):"$0.00";
+  }
+});
 
-function nuevoGasto(){
-    let monto=parseFloat(prompt("Monto gasto"));
-    let motivo=prompt("Motivo");
-    if(!monto||!motivo) return;
-    db.gastos.unshift({monto,motivo});
-    db.saldo-=monto;
-    db.movimientos.unshift({tipo:"GASTO", monto:-monto, fecha:new Date().toLocaleString()});
-    guardar();
-    actualizar();
-}
+document.getElementById("fechaActual").innerText=new Date().toLocaleString();
+UI.actualizar();
+Gastos.render();
+Movimientos.render();
 
-function actualizar(){
-    document.getElementById('saldo').innerText="$"+db.saldo.toFixed(2);
-    document.getElementById('render-historial').innerHTML=
-        db.ventas.map(v=>`<div class="bg-gray-100 p-3 rounded flex justify-between">
-        <span>${v.fecha}</span><span>$${v.total.toFixed(2)}</span></div>`).join("");
-    document.getElementById('render-gastos').innerHTML=
-        db.gastos.map(g=>`<div class="bg-red-100 p-3 rounded flex justify-between">
-        <span>${g.motivo}</span><span>-$${g.monto.toFixed(2)}</span></div>`).join("");
-    document.getElementById('render-movimientos').innerHTML=
-        db.movimientos.map(m=>`<div class="bg-gray-200 p-3 rounded flex justify-between">
-        <span>${m.tipo}</span><span>$${m.monto.toFixed(2)}</span></div>`).join("");
-}
-
-actualizar();
-document.getElementById('fecha-hoy').innerText=new Date().toLocaleDateString();
 </script>
+
 </body>
 </html>
- 
