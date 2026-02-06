@@ -157,7 +157,15 @@ let db = {
 
 /* ---------- NAVEGACIÓN ---------- */
 function abrirCaja(){
-    let monto = parseFloat(document.getElementById("monto-inicial").value);
+
+    const input = document.getElementById("monto-inicial");
+
+    if(!input){
+        alert("Error: No se encuentra el campo monto-inicial");
+        return;
+    }
+
+    let monto = parseFloat(input.value);
 
     if(isNaN(monto) || monto < 0){
         alert("Ingrese un monto válido");
@@ -172,6 +180,12 @@ function abrirCaja(){
         monto: monto,
         fecha: new Date().toLocaleString()
     });
+
+    document.getElementById("modal-apertura").style.display = "none";
+
+    actualizarTodo();
+}
+
 
     document.getElementById("modal-apertura").style.display="none";
     actualizarTodo();
