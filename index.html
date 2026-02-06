@@ -3,339 +3,242 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WILSON POS ENTERPRISE</title>
+<title>TERCENA ARIAS POS</title>
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-body{margin:0;font-family:Segoe UI;background:#f1f5f9;overflow:hidden;}
-.sidebar{width:240px;background:#0f172a;color:white;}
-.sidebar button{width:100%;padding:18px;text-align:left;font-weight:700;border-bottom:1px solid #1e293b;}
-.sidebar button:hover{background:#1e293b;}
-.active-tab{background:#7c2d12 !important;}
-.section{display:none;}
-.section.active{display:flex;}
-.ticket{width:280px;font-family:monospace;font-size:12px;}
+body{background:#1e293b;font-family:Arial;height:100vh;overflow:hidden}
+.btn{
+  height:130px;
+  border-radius:20px;
+  font-weight:bold;
+  font-size:20px;
+  color:white;
+  transition:.15s;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+.btn:active{transform:scale(.95)}
+.ticket{
+  width:280px;
+  font-family:monospace;
+  background:white;
+  color:black;
+  padding:15px;
+}
+@media print{
+  body *{visibility:hidden}
+  #printArea, #printArea *{visibility:visible}
+  #printArea{position:absolute;left:0;top:0}
+}
 </style>
 </head>
-<body class="flex h-screen">
 
-<!-- SIDEBAR -->
-<div class="sidebar flex flex-col">
-  <div class="p-5 text-center border-b border-gray-700">
-    <img src="logotipo.png" class="w-20 mx-auto mb-2">
-    <h1 class="font-black text-sm">WILSON POS</h1>
-    <p class="text-xs text-gray-400">Enterprise</p>
-  </div>
-  <button onclick="UI.switch('dashboard')" id="tab-dashboard" class="active-tab">📊 Dashboard</button>
-  <button onclick="UI.switch('ventas')" id="tab-ventas">🛒 Ventas</button>
-  <button onclick="UI.switch('gastos')" id="tab-gastos">💸 Gastos</button>
-  <button onclick="UI.switch('movimientos')" id="tab-movimientos">📋 Movimientos</button>
-</div>
-
-<div class="flex-1 flex flex-col">
+<body class="flex flex-col text-white">
 
 <!-- HEADER -->
-<div class="bg-white shadow p-4 flex justify-between items-center">
-  <div>
-    <h2 class="font-black text-xl">TERCENA ARIAS</h2>
-    <p id="fechaActual" class="text-xs text-gray-500"></p>
+<div class="bg-slate-900 p-4 flex justify-between items-center shadow-lg">
+  <div class="flex items-center gap-3">
+    <img src="logotipo.png" class="h-12">
+    <div>
+      <h1 class="font-bold text-lg">TERCENA ARIAS</h1>
+      <p class="text-xs text-gray-400">Sistema Profesional</p>
+    </div>
   </div>
+
   <div class="text-right">
-    <p id="estadoCaja" class="font-bold text-red-600">CERRADA</p>
-    <p id="saldoCaja" class="text-2xl font-black text-green-600">$0.00</p>
+    <div id="estadoCaja" class="text-red-400 font-bold">Caja Cerrada</div>
+    <div id="saldo" class="text-3xl font-bold text-green-400">$0.00</div>
   </div>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard" class="section active flex-1 p-6 flex-col overflow-y-auto bg-slate-100">
-  <div class="grid grid-cols-4 gap-6">
-    <div class="bg-white p-6 rounded-xl shadow">
-      <p>Ventas Totales</p>
-      <p id="statVentas" class="text-2xl font-black">$0.00</p>
-    </div>
-    <div class="bg-white p-6 rounded-xl shadow">
-      <p>Gastos Totales</p>
-      <p id="statGastos" class="text-2xl font-black">$0.00</p>
-    </div>
-    <div class="bg-white p-6 rounded-xl shadow">
-      <p>Utilidad</p>
-      <p id="statUtilidad" class="text-2xl font-black">$0.00</p>
-    </div>
-    <div class="bg-white p-6 rounded-xl shadow">
-      <p>Ventas Registradas</p>
-      <p id="statCantidad" class="text-2xl font-black">0</p>
-    </div>
-  </div>
-</div>
+<!-- CONTENIDO -->
+<div class="flex flex-1">
 
-<!-- VENTAS -->
-<div id="ventas" class="section flex-1 bg-white">
-  <div class="flex flex-1">
-    <div class="w-1/2 p-6 bg-slate-50 grid grid-cols-2 gap-4">
-      <button onclick="Ventas.agregar()" class="bg-red-700 text-white p-6 rounded-xl font-bold">
-        + Producto
-      </button>
-    </div>
+<!-- PRODUCTOS -->
+<div class="w-2/3 grid grid-cols-3 gap-6 p-6 bg-slate-800">
 
-    <div class="w-1/2 border-l flex flex-col">
-      <div class="bg-yellow-400 p-4 text-center">
-        <h2 id="totalVenta" class="text-3xl font-black">$0.00</h2>
-      </div>
-      <div id="carritoLista" class="flex-1 overflow-y-auto p-4 space-y-2"></div>
-      <div class="p-4">
-        <button onclick="Ventas.abrirCobro()" class="w-full bg-black text-white py-4 rounded-xl font-bold">
-          COBRAR
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+<button class="btn bg-red-500" onclick="agregar('ALAS',3)">ALAS</button>
+<button class="btn bg-yellow-400 text-black" onclick="agregar('MENUDENCIA',2)">MENUDENCIA</button>
+<button class="btn bg-purple-600" onclick="agregar('POLLO ENTERO',12)">POLLO ENTERO</button>
 
-<!-- GASTOS -->
-<div id="gastos" class="section flex-1 p-6 bg-white flex-col">
-  <button onclick="Gastos.abrir()" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold mb-6">
-    + Registrar Gasto
-  </button>
-  <div id="listaGastos" class="space-y-2 overflow-y-auto flex-1"></div>
-</div>
+<button class="btn bg-green-500" onclick="agregar('PECHUGA',4)">PECHUGA</button>
+<button class="btn bg-blue-500" onclick="agregar('PRESAS',3)">PRESAS</button>
+<button class="btn bg-orange-500" onclick="agregar('MOLLEJA',2.5)">MOLLEJA</button>
 
-<!-- MOVIMIENTOS -->
-<div id="movimientos" class="section flex-1 p-6 bg-white flex-col">
-  <div id="listaMovimientos" class="space-y-2 overflow-y-auto flex-1"></div>
-</div>
+<button class="btn bg-cyan-500 col-span-3" onclick="agregar('POLLO EN LIBRAS',5)">POLLO EN LIBRAS</button>
 
 </div>
 
-<!-- MODALES -->
+<!-- PANEL DERECHO -->
+<div class="w-1/3 bg-slate-900 p-6 flex flex-col">
 
-<div id="modalCaja" class="fixed inset-0 bg-black/70 hidden items-center justify-center">
-  <div class="bg-white p-8 rounded-2xl w-96 text-center">
-    <h3 class="font-black mb-4">Abrir Caja</h3>
-    <input type="number" id="inputCaja" placeholder="Monto inicial"
-      class="border p-3 w-full text-center text-xl mb-4">
-    <button onclick="Caja.abrir()" class="bg-green-600 text-white w-full py-3 rounded-xl font-bold">
-      CONFIRMAR
-    </button>
-  </div>
+<h2 class="text-xl font-bold mb-4">VENTA ACTUAL</h2>
+
+<div id="lista" class="flex-1 overflow-y-auto mb-4"></div>
+
+<div class="bg-black p-4 rounded-xl text-4xl font-bold text-center mb-4">
+TOTAL: $<span id="total">0.00</span>
 </div>
 
-<div id="modalCobro" class="fixed inset-0 bg-black/70 hidden items-center justify-center">
-  <div class="bg-white p-8 rounded-2xl w-96">
-    <h3 class="font-black text-lg mb-4 text-center">Cobrar Venta</h3>
-    <p class="text-center text-xl mb-4">
-      Total: <span id="cobroTotal" class="font-black">$0.00</span>
-    </p>
-    <select id="metodoPago" class="border p-3 w-full mb-4">
-      <option value="EFECTIVO">Efectivo</option>
-      <option value="QR">QR</option>
-      <option value="TRANSFERENCIA">Transferencia</option>
-    </select>
-    <div id="bloqueEfectivo">
-      <input type="number" id="pagoRecibido"
-        placeholder="Pago recibido"
-        class="border p-3 w-full mb-3">
-      <p class="text-right">
-        Cambio: <span id="cambioCalc">$0.00</span>
-      </p>
-    </div>
-    <button onclick="Ventas.confirmarCobro()"
-      class="bg-black text-white w-full py-3 rounded-xl font-bold mt-4">
-      CONFIRMAR VENTA
-    </button>
-  </div>
+<button onclick="abrirCaja()" class="bg-green-600 p-3 rounded-lg mb-2 font-bold">ABRIR CAJA</button>
+<button onclick="abrirCobro()" class="bg-blue-600 p-3 rounded-lg mb-2 font-bold">COBRAR</button>
+<button onclick="cancelar()" class="bg-red-600 p-3 rounded-lg font-bold">CANCELAR</button>
+
+</div>
 </div>
 
-<div id="modalTicket" class="fixed inset-0 bg-black/80 hidden items-center justify-center">
-  <div class="bg-white p-6 ticket">
-    <div class="text-center">
-      <img src="logotipo.png" class="w-20 mx-auto mb-2">
-      <p>TERCENA ARIAS</p>
-      <p id="ticketFecha"></p>
-    </div>
-    <hr>
-    <div id="ticketItems"></div>
-    <hr>
-    <p id="ticketMetodo"></p>
-    <p id="ticketCambio"></p>
-    <p class="text-right font-bold" id="ticketTotal"></p>
-    <button onclick="window.print()" class="bg-green-600 text-white w-full py-2 mt-4">Imprimir</button>
-    <button onclick="UI.cerrarTicket()" class="bg-gray-800 text-white w-full py-2 mt-2">Cerrar</button>
-  </div>
+<!-- MODAL COBRO -->
+<div id="modalCobro" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center">
+<div class="bg-white text-black p-8 rounded-xl w-96">
+<h3 class="font-bold text-lg mb-4">Cobrar Venta</h3>
+
+<select id="metodo" class="border w-full p-2 mb-3">
+<option value="EFECTIVO">Efectivo</option>
+<option value="QR">QR</option>
+<option value="TRANSFERENCIA">Transferencia</option>
+</select>
+
+<input id="recibido" type="number" placeholder="Pago recibido" class="border w-full p-2 mb-3">
+
+<div class="mb-3">Cambio: $<span id="cambio">0.00</span></div>
+
+<button onclick="confirmarCobro()" class="bg-black text-white w-full p-3 rounded-lg font-bold">CONFIRMAR</button>
+</div>
+</div>
+
+<!-- AREA IMPRESION -->
+<div id="printArea" class="hidden">
+<div class="ticket" id="ticket"></div>
 </div>
 
 <script>
 
-const Store={
-  data:JSON.parse(localStorage.getItem("wilson_enterprise"))||{
-    cajaAbierta:false,
-    saldo:0,
-    ventas:[],
-    gastos:[],
-    movimientos:[]
-  },
-  save(){localStorage.setItem("wilson_enterprise",JSON.stringify(this.data))}
-};
-
-const UI={
-  switch(sec){
-    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-    document.getElementById(sec).classList.add("active");
-    document.querySelectorAll(".sidebar button").forEach(b=>b.classList.remove("active-tab"));
-    document.getElementById("tab-"+sec).classList.add("active-tab");
-  },
-  actualizar(){
-    document.getElementById("estadoCaja").innerText=Store.data.cajaAbierta?"ABIERTA":"CERRADA";
-    document.getElementById("estadoCaja").className=
-      Store.data.cajaAbierta?"font-bold text-green-600":"font-bold text-red-600";
-    document.getElementById("saldoCaja").innerText="$"+Store.data.saldo.toFixed(2);
-
-    const tv=Store.data.ventas.reduce((a,v)=>a+v.total,0);
-    const tg=Store.data.gastos.reduce((a,g)=>a+g.monto,0);
-
-    document.getElementById("statVentas").innerText="$"+tv.toFixed(2);
-    document.getElementById("statGastos").innerText="$"+tg.toFixed(2);
-    document.getElementById("statUtilidad").innerText="$"+(tv-tg).toFixed(2);
-    document.getElementById("statCantidad").innerText=Store.data.ventas.length;
-  },
-  cerrarTicket(){
-    document.getElementById("modalTicket").classList.add("hidden");
-  }
-};
-
-const Caja={
-  abrir(){
-    const monto=parseFloat(document.getElementById("inputCaja").value);
-    if(isNaN(monto)||monto<0)return;
-    Store.data.cajaAbierta=true;
-    Store.data.saldo=monto;
-    Store.data.movimientos.unshift({tipo:"APERTURA",monto,fecha:new Date().toLocaleString()});
-    Store.save();
-    UI.actualizar();
-    document.getElementById("modalCaja").classList.add("hidden");
-  }
-};
-
-const Ventas={
+let db = JSON.parse(localStorage.getItem("pos")) || {
+  caja:false,
+  saldo:0,
   carrito:[],
-  agregar(){
-    if(!Store.data.cajaAbierta){
-      document.getElementById("modalCaja").classList.remove("hidden");
-      document.getElementById("modalCaja").classList.add("flex");
-      return;
-    }
-    const precio=parseFloat(prompt("Precio producto"));
-    if(!precio)return;
-    this.carrito.push({nombre:"Producto",precio});
-    this.render();
-  },
-  render(){
-    const cont=document.getElementById("carritoLista");
-    cont.innerHTML="";
-    let total=0;
-    this.carrito.forEach((p,i)=>{
-      total+=p.precio;
-      cont.innerHTML+=`
-      <div class="flex justify-between bg-gray-100 p-3 rounded">
+  ventas:[]
+};
+
+function save(){localStorage.setItem("pos",JSON.stringify(db))}
+
+function render(){
+  let lista=document.getElementById("lista");
+  lista.innerHTML="";
+  let total=0;
+
+  db.carrito.forEach((p,i)=>{
+    total+=p.precio;
+    lista.innerHTML+=`
+      <div class="flex justify-between border-b border-gray-600 py-1">
         <span>${p.nombre}</span>
         <span>$${p.precio.toFixed(2)}</span>
-      </div>`;
-    });
-    document.getElementById("totalVenta").innerText="$"+total.toFixed(2);
-  },
-  total(){return this.carrito.reduce((a,p)=>a+p.precio,0)},
-  abrirCobro(){
-    if(this.carrito.length===0)return;
-    document.getElementById("modalCobro").classList.remove("hidden");
-    document.getElementById("modalCobro").classList.add("flex");
-    document.getElementById("cobroTotal").innerText="$"+this.total().toFixed(2);
-  },
-  confirmarCobro(){
-    const total=this.total();
-    const metodo=document.getElementById("metodoPago").value;
-    let pago=total;
-    let cambio=0;
-    if(metodo==="EFECTIVO"){
-      pago=parseFloat(document.getElementById("pagoRecibido").value);
-      if(pago<total)return;
-      cambio=pago-total;
-    }
-    const venta={fecha:new Date().toLocaleString(),items:this.carrito,total,metodo,cambio};
-    Store.data.ventas.unshift(venta);
-    Store.data.saldo+=total;
-    Store.data.movimientos.unshift({tipo:"VENTA",monto:total,fecha:new Date().toLocaleString()});
-    this.carrito=[];
-    this.render();
-    Store.save();
-    UI.actualizar();
-    document.getElementById("modalCobro").classList.add("hidden");
+      </div>
+    `;
+  });
 
-    document.getElementById("ticketFecha").innerText=venta.fecha;
-    document.getElementById("ticketItems").innerHTML=
-      venta.items.map(i=>`<div class="flex justify-between"><span>${i.nombre}</span><span>$${i.precio.toFixed(2)}</span></div>`).join("");
-    document.getElementById("ticketMetodo").innerText="Método: "+metodo;
-    document.getElementById("ticketCambio").innerText="Cambio: $"+cambio.toFixed(2);
-    document.getElementById("ticketTotal").innerText="TOTAL: $"+total.toFixed(2);
-    document.getElementById("modalTicket").classList.remove("hidden");
-    document.getElementById("modalTicket").classList.add("flex");
-  }
-};
+  document.getElementById("total").innerText=total.toFixed(2);
+}
 
-const Gastos={
-  abrir(){
-    if(!Store.data.cajaAbierta)return;
-    const monto=parseFloat(prompt("Monto"));
-    const motivo=prompt("Motivo");
-    if(!monto||!motivo)return;
-    Store.data.gastos.unshift({monto,motivo});
-    Store.data.saldo-=monto;
-    Store.data.movimientos.unshift({tipo:"GASTO",monto:-monto,fecha:new Date().toLocaleString()});
-    Store.save();
-    UI.actualizar();
-    this.render();
-  },
-  render(){
-    const cont=document.getElementById("listaGastos");
-    cont.innerHTML="";
-    Store.data.gastos.forEach(g=>{
-      cont.innerHTML+=`
-      <div class="bg-red-100 p-3 rounded flex justify-between">
-        <span>${g.motivo}</span>
-        <span>-$${g.monto.toFixed(2)}</span>
-      </div>`;
-    });
-  }
-};
+function agregar(n,p){
+  if(!db.caja){alert("Primero debe abrir caja");return;}
+  db.carrito.push({nombre:n,precio:p});
+  save();
+  render();
+}
 
-const Movimientos={
-  render(){
-    const cont=document.getElementById("listaMovimientos");
-    cont.innerHTML="";
-    Store.data.movimientos.forEach(m=>{
-      cont.innerHTML+=`
-      <div class="bg-gray-100 p-3 rounded flex justify-between">
-        <span>${m.tipo}</span>
-        <span>$${m.monto.toFixed(2)}</span>
-      </div>`;
-    });
-  }
-};
+function abrirCaja(){
+  if(db.caja)return;
+  let monto=prompt("Monto inicial:");
+  if(!monto)return;
+  db.caja=true;
+  db.saldo=parseFloat(monto);
+  document.getElementById("estadoCaja").innerText="Caja Abierta";
+  document.getElementById("estadoCaja").className="text-green-400 font-bold";
+  actualizarSaldo();
+  save();
+}
 
-document.addEventListener("input",e=>{
-  if(e.target.id==="pagoRecibido"){
-    const total=Ventas.total();
-    const pago=parseFloat(e.target.value);
-    const cambio=pago-total;
-    document.getElementById("cambioCalc").innerText=
-      pago>=total?"$"+cambio.toFixed(2):"$0.00";
-  }
+function actualizarSaldo(){
+  document.getElementById("saldo").innerText="$"+db.saldo.toFixed(2);
+}
+
+function abrirCobro(){
+  if(db.carrito.length==0)return;
+  document.getElementById("modalCobro").classList.remove("hidden");
+}
+
+document.getElementById("recibido").addEventListener("input",()=>{
+  let total=parseFloat(document.getElementById("total").innerText);
+  let pag=parseFloat(document.getElementById("recibido").value);
+  let cambio=pag-total;
+  document.getElementById("cambio").innerText=(cambio>0?cambio:0).toFixed(2);
 });
 
-document.getElementById("fechaActual").innerText=new Date().toLocaleString();
-UI.actualizar();
-Gastos.render();
-Movimientos.render();
+function confirmarCobro(){
+
+  let total=parseFloat(document.getElementById("total").innerText);
+  let metodo=document.getElementById("metodo").value;
+
+  db.saldo+=total;
+
+  let venta={
+    fecha:new Date().toLocaleString(),
+    total:total,
+    metodo:metodo,
+    items:[...db.carrito]
+  };
+
+  db.ventas.push(venta);
+
+  generarTicket(venta);
+
+  db.carrito=[];
+  save();
+  render();
+  actualizarSaldo();
+  document.getElementById("modalCobro").classList.add("hidden");
+}
+
+function cancelar(){
+  db.carrito=[];
+  save();
+  render();
+}
+
+function generarTicket(v){
+
+  let html=`
+  <center>
+  <b>TERCENA ARIAS</b><br>
+  Fecha: ${v.fecha}<br>
+  ----------------------<br>
+  </center>
+  `;
+
+  v.items.forEach(i=>{
+    html+=`${i.nombre}  $${i.precio.toFixed(2)}<br>`;
+  });
+
+  html+=`
+  ----------------------<br>
+  TOTAL: $${v.total.toFixed(2)}<br>
+  Metodo: ${v.metodo}<br><br>
+  Gracias por su compra
+  `;
+
+  document.getElementById("ticket").innerHTML=html;
+  document.getElementById("printArea").classList.remove("hidden");
+  window.print();
+  document.getElementById("printArea").classList.add("hidden");
+}
+
+actualizarSaldo();
+render();
 
 </script>
-
 </body>
 </html>
