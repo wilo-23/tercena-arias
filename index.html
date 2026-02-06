@@ -16,7 +16,6 @@ body{background:#1e293b;font-family:Arial;height:100vh;overflow:hidden}
   color:white;
   transition:.15s;
   display:flex;
-  flex-direction:column;
   align-items:center;
   justify-content:center;
 }
@@ -54,191 +53,14 @@ body{background:#1e293b;font-family:Arial;height:100vh;overflow:hidden}
   </div>
 </div>
 
-<!-- CONTENIDO -->
 <div class="flex flex-1">
 
 <!-- PRODUCTOS -->
 <div class="w-2/3 grid grid-cols-3 gap-6 p-6 bg-slate-800">
 
-<button class="btn bg-red-500" onclick="agregar('ALAS',3)">ALAS</button>
-<button class="btn bg-yellow-400 text-black" onclick="agregar('MENUDENCIA',2)">MENUDENCIA</button>
-<button class="btn bg-purple-600" onclick="agregar('POLLO ENTERO',12)">POLLO ENTERO</button>
+<button class="btn bg-red-500" onclick="agregar('ALAS')">ALAS</button>
+<button class="btn bg-yellow-400 text-black" onclick="agregar('MENUDENCIA')">MENUDENCIA</button>
+<button class="btn bg-purple-600" onclick="agregar('POLLO ENTERO')">POLLO ENTERO</button>
 
-<button class="btn bg-green-500" onclick="agregar('PECHUGA',4)">PECHUGA</button>
-<button class="btn bg-blue-500" onclick="agregar('PRESAS',3)">PRESAS</button>
-<button class="btn bg-orange-500" onclick="agregar('MOLLEJA',2.5)">MOLLEJA</button>
-
-<button class="btn bg-cyan-500 col-span-3" onclick="agregar('POLLO EN LIBRAS',5)">POLLO EN LIBRAS</button>
-
-</div>
-
-<!-- PANEL DERECHO -->
-<div class="w-1/3 bg-slate-900 p-6 flex flex-col">
-
-<h2 class="text-xl font-bold mb-4">VENTA ACTUAL</h2>
-
-<div id="lista" class="flex-1 overflow-y-auto mb-4"></div>
-
-<div class="bg-black p-4 rounded-xl text-4xl font-bold text-center mb-4">
-TOTAL: $<span id="total">0.00</span>
-</div>
-
-<button onclick="abrirCaja()" class="bg-green-600 p-3 rounded-lg mb-2 font-bold">ABRIR CAJA</button>
-<button onclick="abrirCobro()" class="bg-blue-600 p-3 rounded-lg mb-2 font-bold">COBRAR</button>
-<button onclick="cancelar()" class="bg-red-600 p-3 rounded-lg font-bold">CANCELAR</button>
-
-</div>
-</div>
-
-<!-- MODAL COBRO -->
-<div id="modalCobro" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center">
-<div class="bg-white text-black p-8 rounded-xl w-96">
-<h3 class="font-bold text-lg mb-4">Cobrar Venta</h3>
-
-<select id="metodo" class="border w-full p-2 mb-3">
-<option value="EFECTIVO">Efectivo</option>
-<option value="QR">QR</option>
-<option value="TRANSFERENCIA">Transferencia</option>
-</select>
-
-<input id="recibido" type="number" placeholder="Pago recibido" class="border w-full p-2 mb-3">
-
-<div class="mb-3">Cambio: $<span id="cambio">0.00</span></div>
-
-<button onclick="confirmarCobro()" class="bg-black text-white w-full p-3 rounded-lg font-bold">CONFIRMAR</button>
-</div>
-</div>
-
-<!-- AREA IMPRESION -->
-<div id="printArea" class="hidden">
-<div class="ticket" id="ticket"></div>
-</div>
-
-<script>
-
-let db = JSON.parse(localStorage.getItem("pos")) || {
-  caja:false,
-  saldo:0,
-  carrito:[],
-  ventas:[]
-};
-
-function save(){localStorage.setItem("pos",JSON.stringify(db))}
-
-function render(){
-  let lista=document.getElementById("lista");
-  lista.innerHTML="";
-  let total=0;
-
-  db.carrito.forEach((p,i)=>{
-    total+=p.precio;
-    lista.innerHTML+=`
-      <div class="flex justify-between border-b border-gray-600 py-1">
-        <span>${p.nombre}</span>
-        <span>$${p.precio.toFixed(2)}</span>
-      </div>
-    `;
-  });
-
-  document.getElementById("total").innerText=total.toFixed(2);
-}
-
-function agregar(n,p){
-  if(!db.caja){alert("Primero debe abrir caja");return;}
-  db.carrito.push({nombre:n,precio:p});
-  save();
-  render();
-}
-
-function abrirCaja(){
-  if(db.caja)return;
-  let monto=prompt("Monto inicial:");
-  if(!monto)return;
-  db.caja=true;
-  db.saldo=parseFloat(monto);
-  document.getElementById("estadoCaja").innerText="Caja Abierta";
-  document.getElementById("estadoCaja").className="text-green-400 font-bold";
-  actualizarSaldo();
-  save();
-}
-
-function actualizarSaldo(){
-  document.getElementById("saldo").innerText="$"+db.saldo.toFixed(2);
-}
-
-function abrirCobro(){
-  if(db.carrito.length==0)return;
-  document.getElementById("modalCobro").classList.remove("hidden");
-}
-
-document.getElementById("recibido").addEventListener("input",()=>{
-  let total=parseFloat(document.getElementById("total").innerText);
-  let pag=parseFloat(document.getElementById("recibido").value);
-  let cambio=pag-total;
-  document.getElementById("cambio").innerText=(cambio>0?cambio:0).toFixed(2);
-});
-
-function confirmarCobro(){
-
-  let total=parseFloat(document.getElementById("total").innerText);
-  let metodo=document.getElementById("metodo").value;
-
-  db.saldo+=total;
-
-  let venta={
-    fecha:new Date().toLocaleString(),
-    total:total,
-    metodo:metodo,
-    items:[...db.carrito]
-  };
-
-  db.ventas.push(venta);
-
-  generarTicket(venta);
-
-  db.carrito=[];
-  save();
-  render();
-  actualizarSaldo();
-  document.getElementById("modalCobro").classList.add("hidden");
-}
-
-function cancelar(){
-  db.carrito=[];
-  save();
-  render();
-}
-
-function generarTicket(v){
-
-  let html=`
-  <center>
-  <b>TERCENA ARIAS</b><br>
-  Fecha: ${v.fecha}<br>
-  ----------------------<br>
-  </center>
-  `;
-
-  v.items.forEach(i=>{
-    html+=`${i.nombre}  $${i.precio.toFixed(2)}<br>`;
-  });
-
-  html+=`
-  ----------------------<br>
-  TOTAL: $${v.total.toFixed(2)}<br>
-  Metodo: ${v.metodo}<br><br>
-  Gracias por su compra
-  `;
-
-  document.getElementById("ticket").innerHTML=html;
-  document.getElementById("printArea").classList.remove("hidden");
-  window.print();
-  document.getElementById("printArea").classList.add("hidden");
-}
-
-actualizarSaldo();
-render();
-
-</script>
-</body>
-</html>
+<button class="btn bg-green-500" onclick="agregar('PECHUGA')">PECHUGA</button>
+<button class="btn bg-blu
